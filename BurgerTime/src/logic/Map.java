@@ -25,7 +25,7 @@ public class Map {
 	public void fillMatrixFromTextFile() {
 		FileReader f1 = null;
 	    try {
-	        f1 = new FileReader("src/fileMap/map1.txt");
+	        f1 = new FileReader("FileMap/map1.txt");
 	    } catch (FileNotFoundException e) {
 	        // TODO Auto-generated catch block
 	        e.printStackTrace();
