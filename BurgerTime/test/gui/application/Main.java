@@ -2,10 +2,10 @@ package gui.application;
 
 import java.util.ArrayList;
 
-import logic.BurgerComponent;
-import logic.Enemy;
-import logic.Map;
-import logic.PieceOfComponent;
+import logic.model.BurgerComponent;
+import logic.model.Enemy;
+import logic.model.Map;
+import logic.model.PieceOfComponent;
 
 public class Main {
 	

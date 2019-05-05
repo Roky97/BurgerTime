@@ -1,4 +1,4 @@
-package logic;
+package logic.model;
 
 public class PieceOfComponent {
 

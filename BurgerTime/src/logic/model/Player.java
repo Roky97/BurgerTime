@@ -1,14 +1,13 @@
-package logic;
+package logic.model;
 
-public class Enemy {
-	
+public class Player {
 	private int screenWeight=1000;
 	private int screenHeight=1000;
 	private double posX;
 	private double posY;
 	private Map map;
 	
-	public Enemy(Map m) {
+	public Player(Map m) {
 		map=m;
 	}
 	
