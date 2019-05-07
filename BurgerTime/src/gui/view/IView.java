@@ -3,6 +3,7 @@ package gui.view;
 import javafx.stage.Stage;
 import logic.GameManager;
 
+@SuppressWarnings("restriction")
 public interface IView
 {
 	void createBackground();

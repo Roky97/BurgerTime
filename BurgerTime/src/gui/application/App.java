@@ -5,11 +5,6 @@ import javafx.stage.Stage;
 import logic.GameManager;
 import gui.view.IView;
 import gui.view.MenuView;
-import gui.view.ViewManager;
-import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-
 
 public class App extends Application {
 	@Override

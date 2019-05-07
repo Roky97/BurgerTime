@@ -5,6 +5,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import logic.GameManager;
 
+@SuppressWarnings("restriction")
 public class ViewManager {
 
 	final int HEIGHT = 600;
@@ -23,8 +24,9 @@ public class ViewManager {
 		mainStage = new Stage();
 		pane = new AnchorPane();
 		scene = new Scene(pane, WIDTH, HEIGHT);
+		mainStage.setScene(scene);
 	}
-	
+
 	public void setView(IView view) {
 		mainStage = view.getStage();
 	}

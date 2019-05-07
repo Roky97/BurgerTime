@@ -1,9 +1,9 @@
 package gui.model;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
-import javafx.event.Event;
+//import java.io.FileInputStream;
+//import java.io.FileNotFoundException;
+//
+//import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.effect.DropShadow;
@@ -12,9 +12,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 
 public class GameButton extends Button{
-	private final String Font_Path = "file:src/resources/kenvector_future.ttf";
-	private final String BUTTON_PRESSED_STYLE = "-fx-background-color: transparent; -fx-background-image: url('/resources/yellow_button03.png');";
-	private final String BUTTON_FREE_STYLE = "-fx-background-color: transparent; -fx-background-image: url('/resources/yellow_button02.png');";
+	private final String Font_Path = "file:src/gui/resources/Burgertime.otf";
+	private final String BUTTON_PRESSED_STYLE = "-fx-background-color: transparent; -fx-background-image: url('gui/resources/yellow_button03.png');";
+	private final String BUTTON_FREE_STYLE = "-fx-background-color: transparent; -fx-background-image: url('gui/resources/yellow_button02.png');";
 	
 	public GameButton(String text) {
 		setText(text);

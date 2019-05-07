@@ -13,7 +13,7 @@ import javafx.scene.layout.BackgroundRepeat;
 import javafx.util.Duration;
 
 public class GameSubScene extends SubScene{
-	private final static String FONT_PATH = "file:resources/kenvector_future.ttf";
+	private final static String FONT_PATH = "file:resources/Burgertime.otf";
 	private final static String BACKGROUND_IMAGE = "resources/yellow_panel.png";
 	private boolean isHidden;
 	public GameSubScene() {
