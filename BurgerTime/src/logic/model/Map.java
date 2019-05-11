@@ -10,22 +10,22 @@ public class Map {
 	private int screenHeight=1000;
 	private int rowLen;
 	private int colLen;  
-	private Integer[][] matrix;
+	private char[][] matrix;
 	
 	
-	public Map() {
-		rowLen=20;
-		colLen=20;
-		matrix = new Integer[rowLen][colLen];
+	public Map(int i) {
+		rowLen=26;
+		colLen=21;
+		matrix = new char[rowLen][colLen];
 		
-		fillMatrixFromTextFile();
+		fillMatrixFromTextFile(i);
 		
 	}
 	
-	public void fillMatrixFromTextFile() {
+	public void fillMatrixFromTextFile(int i) {
 		FileReader f1 = null;
 	    try {
-	        f1 = new FileReader("FileMap/map1.txt");
+	        f1 = new FileReader("FileMap/map" + i +".txt");
 	    } catch (FileNotFoundException e) {
 	        // TODO Auto-generated catch block
 	        e.printStackTrace();
@@ -33,18 +33,14 @@ public class Map {
 	    @SuppressWarnings("resource")
 	    Scanner s1 = new Scanner(f1);
 	    
-	    
-	    
 	    int row=0;
 	    while(s1.hasNext()) {
 	    	
 	    	String words = s1.next();
-	    	
 	    	for(int col=0;col<colLen;col++) {
 	    		char ch = words.charAt(col);
-	    		
-	    		int a=Character.getNumericValue(ch);
-	    		matrix[row][col]=a;
+//	    		int a=Character.getNumericValue(ch);
+	    		matrix[row][col]=ch;
 	    	}
 	    	row++;
 	    }
@@ -61,15 +57,15 @@ public class Map {
 		return colLen;
 	}
 	
-	public Integer[][] getMatrix(){
+	public char[][] getMatrix(){
 		return matrix;
 	}
 	
-	public int getMatrixValue(int i, int j) {
+	public char getMatrixValue(int i, int j) {
 		return matrix[i][j];
 	}
 	
-	public void setMatrixValue(int i,int j,int v) {
+	public void setMatrixValue(int i,int j,char v) {
 		matrix[i][j]=v;
 	}
 	
@@ -109,6 +105,18 @@ public class Map {
 		}
 		
 		return burgerComponents;
+	}
+	
+	@Override
+	public String toString() {
+		String mstring = "";
+		for(int i=0;i<getRowLen();i++) {
+			for(int j=0;j<getColLen();j++) {
+				mstring +=getMatrixValue(i, j)+" ";
+			}
+			mstring+="\n";
+		}
+		return mstring;
 	}
 	
 }

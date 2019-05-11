@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import gui.model.GameButton;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
@@ -57,7 +59,8 @@ public class MenuView extends ViewManager implements IView{
 						btn.setDisable(!btn.isDisable());
 					}
 				}
-				mainStage.close();
+//				mainStage.close();
+				playGame();
 			}
 		});
 		menuButtons.add(playBtn);
@@ -79,13 +82,13 @@ public class MenuView extends ViewManager implements IView{
 		for (GameButton button : menuButtons) {
 			button.setLayoutX(MENU_BUTTON_X);
 			button.setLayoutY(MENU_BUTTON_Y + menuButtons.indexOf(button) * 100);
-			pane.getChildren().add(button); // DA PROBLEMI
+			pane.getChildren().add(button);
 		}
 	}
 	
-	private void playSudoku() {
-//		GameView game = new GameView();
-//		game.hideStage(stage);
+	private void playGame() {
+		GameView game = new GameView();
+		game.hideStage(mainStage);
 	}
 
 	@Override
