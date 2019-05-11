@@ -1,4 +1,4 @@
-package gui.application;
+package test;
 
 import java.util.ArrayList;
 
@@ -11,7 +11,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
-		Map m=new Map();
+		Map m=new Map(1);
 		
 		for(int i=0;i<m.getRowLen();i++) {
 			for(int j=0;j<m.getColLen();j++) {
@@ -36,6 +36,9 @@ public class Main {
 			System.out.println("Posizione enemy:");
 			System.out.println(arrayEn.get(i).getPosX()+" "+arrayEn.get(i).getPosY());
 		}
+		
+
+		
 		
 	}
 }
