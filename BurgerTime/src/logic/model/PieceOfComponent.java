@@ -2,29 +2,29 @@ package logic.model;
 
 public class PieceOfComponent {
 
-	private double posX;
-	private double posY;
+	private int posX;
+	private int posY;
 	private boolean pressed;
 	
-	public PieceOfComponent(double x,double y) {
+	public PieceOfComponent(int x,int y) {
 		posX=x;
 		posY=y;
 		pressed=false;
 	}
 	
-	public double getPosX() {
+	public int getPosX() {
 		return posX;
 	}
 	
-	public void setPosX(double newPosX) {
+	public void setPosX(int newPosX) {
 		posX=newPosX;
 	}
 	
-	public double getPosY() {
+	public int getPosY() {
 		return posY;
 	}
 	
-	public void setPosY(double newPosY) {
+	public void setPosY(int newPosY) {
 		posY=newPosY;
 	}
 	

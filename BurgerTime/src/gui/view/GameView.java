@@ -2,12 +2,15 @@ package gui.view;
 
 import java.awt.Image;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import logic.GameManager;
+import logic.model.BurgerComponent;
 import logic.model.Map;
+import logic.model.PieceOfComponent;
 
 public class GameView extends ViewManager implements IView {
 
@@ -44,8 +47,24 @@ public class GameView extends ViewManager implements IView {
 	}
 	
 	private void loadElements() {
-//		manager.get
+		Map map = manager.getLevels().get(manager.getCurrentLevel()-1);
+		HashMap<ImageView,PieceOfComponent> pieces = new HashMap<>();
 		
+		
+		for(BurgerComponent bc : map.getBurgerComponents()) {
+			for(int i = 0; i< bc.getPieces().size(); i++) {
+
+				ImageView temp = new ImageView(bc.getType().getUrl()+ (i+1) + ".png");
+				temp.setX(bc.getPieces().get(i).getPosY() * imageSizeX);
+				temp.setY((bc.getPieces().get(i).getPosX() * imageSizeY) + OFFSET_Y);
+				
+				drawTile(bc.getPieces().get(i).getPosX(), bc.getPieces().get(i).getPosY());
+				pane.getChildren().add(temp);
+				pieces.put(temp, bc.getPieces().get(i));
+				
+				
+			}
+		}
 	}
 
 	private void drawLifes() {
