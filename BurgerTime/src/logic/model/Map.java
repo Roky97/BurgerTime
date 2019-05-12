@@ -35,7 +35,6 @@ public class Map {
 	    
 	    int row=0;
 	    while(s1.hasNext()) {
-	    	
 	    	String words = s1.next();
 	    	for(int col=0;col<colLen;col++) {
 	    		char ch = words.charAt(col);
@@ -93,13 +92,15 @@ public class Map {
 		for(int i=0;i<rowLen;i++) {
 			for(int j=0;j<colLen;j++) {
 				BurgerComponent b=new BurgerComponent(this);
-				if(matrix[i][j]==3) {
+				if(matrix[i][j]=='d') {
+					b.setType(TypeComponent.DOWN_BREAD);
 					for(int k=j;k<j+4;k++) {
-						PieceOfComponent p=new PieceOfComponent(screenWeight/(i+1),screenHeight/(k+1));
+//						PieceOfComponent p=new PieceOfComponent(screenWeight/(i+1),screenHeight/(k+1));
+						PieceOfComponent p=new PieceOfComponent(i,k);
 						b.addPiece(p);
 					}
 					burgerComponents.add(b);
-					j+=3;
+					j+=3; // prima era 3
 				}
 			}
 		}

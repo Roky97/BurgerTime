@@ -37,11 +37,17 @@ public class GameView extends ViewManager implements IView {
 		lifesImage = new ArrayList<ImageView>();
 		
 		createBackground();
+		loadElements();
 		drawLifes();
 		
 		mainStage.show();
 	}
 	
+	private void loadElements() {
+		manager.get
+		
+	}
+
 	private void drawLifes() {
 		for(int i=0; i<manager.getLifes(); i++) {
 			ImageView lifeImage = new ImageView(lifeUrl);
@@ -117,6 +123,8 @@ public class GameView extends ViewManager implements IView {
 				
 			}
 		}
+		
+		
 		
 		
 	}

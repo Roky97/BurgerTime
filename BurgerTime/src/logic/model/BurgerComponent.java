@@ -6,7 +6,16 @@ public class BurgerComponent {
 	
 	ArrayList<PieceOfComponent> pieces;
 	boolean allPiecesPressed;
+	TypeComponent type;
 	Map map;
+	
+	public TypeComponent getType() {
+		return type;
+	}
+
+	public void setType(TypeComponent type) {
+		this.type = type;
+	}
 	
 	public BurgerComponent(Map m) {
 		map=m;
