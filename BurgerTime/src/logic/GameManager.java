@@ -2,7 +2,10 @@ package logic;
 
 import java.util.ArrayList;
 
+import javax.swing.text.AbstractDocument.LeafElement;
+
 import logic.model.Map;
+import logic.model.Player;
 
 public class GameManager {
 
@@ -11,9 +14,17 @@ public class GameManager {
 	private int currLevel = 1; //gamemanger
 	private int lifes = 4; //gamemanger
 	
+	Player player;
+	
 	public GameManager() {
 		levels = new ArrayList<Map>();
 		loadLevels();
+		
+		player = levels.get(currLevel-1).getPlayer();
+	}
+	
+	public Map getCurrentMapLevel() {
+		return levels.get(currLevel-1);
 	}
 	
 	private void loadLevels() {
@@ -30,6 +41,10 @@ public class GameManager {
 //	public void setLevels(ArrayList<Map> levels) {
 //		this.levels = levels;
 //	}
+	
+	public Player getPlayer() {
+		return player;
+	}
 
 	public int getNumbersOfLevels() {
 		return totLevels;

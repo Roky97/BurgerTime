@@ -68,6 +68,16 @@ public class Map {
 		matrix[i][j]=v;
 	}
 	
+	public Player getPlayer() {
+		for(int i=0;i<rowLen;i++) {
+			for(int j=0;j<colLen;j++) {
+				if(matrix[i][j]=='p') {
+					return new Player(i,j);
+				}
+			}
+		}
+		return null;
+	}
 	
 	public ArrayList<Enemy> getEnemies(){
 		ArrayList<Enemy> enemies=new ArrayList<Enemy>();

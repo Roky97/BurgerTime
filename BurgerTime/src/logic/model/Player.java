@@ -1,29 +1,34 @@
 package logic.model;
 
 public class Player {
-	private int screenWeight=1000;
-	private int screenHeight=1000;
-	private double posX;
-	private double posY;
+	private int posX;
+	private int posY;
 	private Map map;
+	
+	
 	
 	public Player(Map m) {
 		map=m;
 	}
 	
-	public double getPosX() {
+	public Player(int x, int y) {
+		posX = x;
+		posY = y;
+	}
+	
+	public int getPosX() {
 		return posX;
 	}
 	
-	public void setPosX(double newPosX) {
+	public void setPosX(int newPosX) {
 		posX=newPosX;
 	}
 	
-	public double getPosY() {
+	public int getPosY() {
 		return posY;
 	}
 	
-	public void setPosY(double newPosY) {
+	public void setPosY(int newPosY) {
 		posY=newPosY;
 	}
 	
