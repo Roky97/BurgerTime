@@ -16,13 +16,12 @@ public class GameView extends ViewManager implements IView {
 	final int imageSizeX = 35;
 	final int imageSizeY = 30;
 	
+	final static int WIDTH = 735;
+	final static int HEIGHT = 1000;
+	
 	private ArrayList<ImageView> lifesImage;
 	
-	private ArrayList<Map> levels;
-	private int totLevels = 1;
-	private int currLevel = 1;
-	private int lifes = 4;
-	
+	private GameManager manager;
 	
 	private String tileUrl= "/gui/resources/game/tile.png";
 	private String stairUrl = "/gui/resources/game/stair.png";
@@ -30,35 +29,27 @@ public class GameView extends ViewManager implements IView {
 	private String lifeUrl = "/gui/resources/game/life.png";
 	
 	public GameView() {
-		super(735,1000);
+		super(WIDTH,HEIGHT);
 //		mainStage.setResizable(false);
 		
-		levels = new ArrayList<Map>();
+		manager = new GameManager();
+		
 		lifesImage = new ArrayList<ImageView>();
 		
-		loadLevels();
 		createBackground();
+		drawLifes();
 		
 		mainStage.show();
 	}
 	
-	private void loadLevels() {
-		for(int i = 0; i < totLevels; i++)
-		{
-			levels.add(new Map(i+1));
-//			System.out.println(levels.get(i));
-		}
-		drawLifes();
-	}
-	
-	
-	
 	private void drawLifes() {
-		for(int i=0; i<lifes; i++) {
+		for(int i=0; i<manager.getLifes(); i++) {
 			ImageView lifeImage = new ImageView(lifeUrl);
-			lifeImage.setX(i*35);
+			lifeImage.setX(i*imageSizeX);
 			lifeImage.setY(0);
 			lifesImage.add(lifeImage);
+			lifeImage.setScaleX(0.7);
+			lifeImage.setScaleY(0.7);
 			
 			pane.getChildren().add(lifeImage);
 //			pane.getChildren().remove(lifesImage.get(lifesImage.size()-1));
@@ -68,8 +59,8 @@ public class GameView extends ViewManager implements IView {
 
 	private void drawTile(int i, int j) {
 		ImageView tileImage = new ImageView(tileUrl);
-		tileImage.setX(j*35 );
-		tileImage.setY((i*30) + OFFSET_Y );
+		tileImage.setX(j*imageSizeX );
+		tileImage.setY((i*imageSizeY) + OFFSET_Y );
 		
 		pane.getChildren().add(tileImage);
 	}
@@ -77,8 +68,8 @@ public class GameView extends ViewManager implements IView {
 	private void drawStair(int i, int j) {
 		ImageView stairImage = new ImageView(stairUrl);
 //	System.out.println(stairImage.getFitHeight());
-		stairImage.setX(j*35 );
-		stairImage.setY((i*30) + OFFSET_Y );
+		stairImage.setX(j*imageSizeX );
+		stairImage.setY((i*imageSizeY) + OFFSET_Y );
 		
 		pane.getChildren().add(stairImage);
 	}
@@ -86,8 +77,8 @@ public class GameView extends ViewManager implements IView {
 	
 	private void drawTileStair(int i, int j) {
 		ImageView tileStairImage = new ImageView(tileStairUrl);
-		tileStairImage.setX(j*35 );
-		tileStairImage.setY((i*30) + OFFSET_Y );
+		tileStairImage.setX(j*imageSizeX );
+		tileStairImage.setY((i*imageSizeY) + OFFSET_Y );
 		
 		pane.getChildren().add(tileStairImage);
 	}
@@ -95,20 +86,20 @@ public class GameView extends ViewManager implements IView {
 	@Override
 	public void createBackground() {
 		pane.setStyle("-fx-background-color: black");
-		for(int i = 0; i < levels.get(currLevel - 1).getRowLen(); i++) {
-			for( int j = 0; j < levels.get(currLevel - 1).getColLen(); j++) {
+		for(int i = 0; i < manager.getLevels().get(manager.getCurrentLevel() - 1).getRowLen(); i++) {
+			for( int j = 0; j < manager.getLevels().get(manager.getCurrentLevel() - 1).getColLen(); j++) {
 				
-				switch (levels.get(currLevel - 1).getMatrixValue(i, j)) {
+				switch (manager.getLevels().get(manager.getCurrentLevel() - 1).getMatrixValue(i, j)) {
 				case '-':
 					
 					drawTile(i, j);
 					
-					if(i>0 && levels.get(currLevel - 1).getMatrixValue(i - 1, j) == '|') {
+					if(i>0 && manager.getLevels().get(manager.getCurrentLevel() - 1).getMatrixValue(i - 1, j) == '|') {
 						drawTileStair(i, j);
 						drawStair(i, j);
 						
 					}
-					if(i == 0 && levels.get(currLevel - 1).getMatrixValue(i + 1, j) == '|')
+					if(i == 0 && manager.getLevels().get(manager.getCurrentLevel() - 1).getMatrixValue(i + 1, j) == '|')
 						drawTileStair(i, j);
 					break;
 				
@@ -138,8 +129,7 @@ public class GameView extends ViewManager implements IView {
 
 	@Override
 	public Stage getStage() {
-		// TODO Auto-generated method stub
-		return null;
+		return mainStage;
 	}
 
 	@Override
