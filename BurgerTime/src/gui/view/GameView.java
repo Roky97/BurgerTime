@@ -44,7 +44,7 @@ public class GameView extends ViewManager implements IView {
 	}
 	
 	private void loadElements() {
-		manager.get
+//		manager.get
 		
 	}
 
