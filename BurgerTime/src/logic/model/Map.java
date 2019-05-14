@@ -72,7 +72,8 @@ public class Map {
 		for(int i=0;i<rowLen;i++) {
 			for(int j=0;j<colLen;j++) {
 				if(matrix[i][j]=='p') {
-					return new Player(i,j);
+					matrix[i][j]='0';
+					return new Player(i,j,this);
 				}
 			}
 		}

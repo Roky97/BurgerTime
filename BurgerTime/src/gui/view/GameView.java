@@ -2,6 +2,7 @@ package gui.view;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
@@ -18,6 +19,7 @@ import logic.GameManager;
 import logic.model.BurgerComponent;
 import logic.model.Map;
 import logic.model.PieceOfComponent;
+import logic.model.Player;
 
 public class GameView extends ViewManager implements IView {
 
@@ -32,9 +34,13 @@ public class GameView extends ViewManager implements IView {
 	final static int HEIGHT = 1000;
 	
 	private ArrayList<ImageView> lifesImage;
-	private ImageView player;
+	private ImageView chefImage;
+	private HashMap<ImageView,PieceOfComponent> pieces;
 	
 	private GameManager manager;
+	private Player player;
+	private Map map;
+
 	
 	private AnimationTimer gameTimer;
 	
@@ -43,7 +49,7 @@ public class GameView extends ViewManager implements IView {
 	private boolean isUpKeyPressed = false;
 	private boolean isDownKeyPressed = false;
 	
-	private int stepPlayer = 2;
+	private int stepPlayer = 1;
 	
 	private String tileUrl= "/gui/resources/game/tile.png";
 	private String stairUrl = "/gui/resources/game/stair.png";
@@ -56,8 +62,11 @@ public class GameView extends ViewManager implements IView {
 //		mainStage.setResizable(false);
 		
 		manager = new GameManager();
+		player=manager.getPlayer();
+		map = manager.getLevels().get(manager.getCurrentLevel()-1);
 		
 		lifesImage = new ArrayList<ImageView>();
+		pieces = new HashMap<>();
 		
 		createBackground();
 		loadElements();
@@ -76,163 +85,210 @@ public class GameView extends ViewManager implements IView {
 			
 			@Override
 			public void handle(long now) {
-
 				movePlayer();
-//				moveBackround();
-//				moveElements();
-//				checkIfElementsAreBehindTheShipAndRelacote();
-//				checkCollision();
-			}
-
-			
+				checkIfPlayerOnPiece();
+			}	
 		};
 		
 		gameTimer.start();
 	}
 	
+	
 	private void movePlayer() {
 		if(isLeftKeyPressed && !isRightKeyPressed) {
-			if(canMoveLeft())
-				player.setX(player.getX() - stepPlayer);
+			if(player.moveLeft()) {	
+				while((chefImage.getX()/imageSizeX)!=player.getPosY()) {
+					chefImage.setX(chefImage.getX() - 1);
+				}		
+			}
+			
+			isLeftKeyPressed=false;
 		}
 		
 		if(!isLeftKeyPressed && isRightKeyPressed) {
-			if(canMoveRight())
-				player.setX(player.getX() + stepPlayer);
+			if(player.moveRight()) {
+				while((chefImage.getX()/imageSizeX)!=player.getPosY()) {
+					chefImage.setX(chefImage.getX() + 1);
+				}	
+			}
+			
+			isRightKeyPressed=false;
 		}
 		
 		if(isUpKeyPressed && !isDownKeyPressed) {
-			if(canMoveUp())
-				player.setY(player.getY() - stepPlayer);
+			if(player.moveUp()) {
+				
+				while(((chefImage.getY()-65)/imageSizeY)!=player.getPosX()) {
+					chefImage.setY(chefImage.getY() - 1);
+				}	
+			}
+			
+			isUpKeyPressed=false;
 		}
+		
 		if(!isUpKeyPressed && isDownKeyPressed) {
-			if(canMoveDown())
-				player.setY(player.getY() + stepPlayer);
+			if(player.moveDown()) {
+				
+				while(((chefImage.getY()-65)/imageSizeY)!=player.getPosX()) {	
+					chefImage.setY(chefImage.getY() + 1);
+				}	
+			}
+			
+			isDownKeyPressed=false;
+		}		
+		
+	}
+	
+	private void checkIfPlayerOnPiece() {
+		
+		for(BurgerComponent bc : map.getBurgerComponents()) {
+			for(int i = 0; i< bc.getPieces().size(); i++) {
+				if( (bc.getPieces().get(i).getPosX()-1==player.getPosX()) && (bc.getPieces().get(i).getPosY()==player.getPosY())) {
+					for (Entry<ImageView, PieceOfComponent> entry : pieces.entrySet()) {
+						 if((entry.getValue().getPosX()==bc.getPieces().get(i).getPosX() && entry.getValue().getPosY()==bc.getPieces().get(i).getPosY()) && (entry.getValue().getPressed()==false))
+					     {
+							 
+							 entry.getValue().setPressed(true);
+							 entry.getKey().setY(entry.getKey().getY()+10);
+							 return;
+					     }
+					}
+				}	
+			}
 		}
 		
-		
+	}
+	
+	
+	
+//	/////////////////////////////////
+//	//// CHECK MOVEMENT SECTION /////
+//	/////////////////////////////////
+//	
+//	private boolean canMoveDown() {
+//		int x = (int) ((chefImage.getX() + imageSizeX));
+//		int y = (int) chefImage.getY() - OFFSET_Y + imageChefSizeX;
+//		if(x/imageSizeX >= manager.getCurrentMapLevel().getRowLen()) {
+//			System.out.println(y + " " + manager.getCurrentMapLevel().getRowLen());
+//			return false;
+//		}
 //		
-		
-	}
+////		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
+////		rect.setLayoutX(x);
+////		rect.setLayoutY(y);
+////		pane.getChildren().add(rect);
+//		
+////		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) + " attuale");
+////		System.out.println(((y/imageSizeY) + 1) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(((y/imageSizeY) + 1), x/imageSizeX) + " sotto");
+////		System.out.println();
+//		
+//		if(manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '|' || (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '-' && manager.getCurrentMapLevel().getMatrixValue((y/imageSizeY)+1, x/imageSizeX)=='|'))
+//			return true;
+//		return false;
+//	}
+//
+//	private boolean canMoveUp() {
+//		int x = (int) ((chefImage.getX() + imageSizeX));
+//		int y = (int) chefImage.getY() - OFFSET_Y + imageChefSizeX;
+//		
+//		if((y/imageSizeY)-1 < 0) {
+//			return false;
+//		}
+////		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
+////		rect.setLayoutX(x);
+////		rect.setLayoutY(y);
+////		pane.getChildren().add(rect);
+//		
+////		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) + " attuale");
+////		System.out.println(((y/imageSizeY) - 1) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(((y/imageSizeY) - 1), x/imageSizeX) + " sopra");
+////		System.out.println();
+//		
+//		if(manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '|' || (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '-' && manager.getCurrentMapLevel().getMatrixValue((y/imageSizeY)-1, x/imageSizeX)=='|'))
+//			return true;
+//		return false;
+//	}
+//
+//	private boolean canMoveLeft() {
+//		int x = (int) ((chefImage.getX() + imageSizeX) - stepPlayer);
+//		int y = (int) chefImage.getY() - OFFSET_Y + imageChefSizeX;
+//		if(x-1<0) {
+//			return false;
+//		}
+////		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
+////		rect.setLayoutX(x);
+////		rect.setLayoutY(y);
+////		pane.getChildren().add(rect);
+//		
+//		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX));
+//		switch (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX)) {
+//		case 'p':
+//			return true;
+//			
+//		case 'd':
+//			return true;
+//			
+//		case 'h':
+//			return true;
+//		case 's':
+//			return true;
+//		case 'u':
+//			return true;
+//			
+//		case '-':
+//			return true;
+//
+//		default:
+//			break;
+//		}
+//		
+//		return false;
+//	}
+//	
+//	private boolean canMoveRight() {
+//		
+//		int x = (int) ((chefImage.getX() + imageSizeX) + stepPlayer);
+//		int y = (int) chefImage.getY() - OFFSET_Y + imageChefSizeX;
+//		
+//		if(x/imageSizeX>= manager.getCurrentMapLevel().getColLen()) {
+//			return false;
+//		}
+//		
+////		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
+////		rect.setLayoutX(x);
+////		rect.setLayoutY(y);
+////		pane.getChildren().add(rect);
+//		
+//		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX));
+//		switch (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX)) {
+//		case 'p':
+//			return true;
+//			
+//		case 'd':
+//			return true;
+//			
+//		case 'h':
+//			return true;
+//		case 's':
+//			return true;
+//		case 'u':
+//			return true;
+//			
+//		case '-':
+//			return true;
+//
+//		default:
+//			break;
+//		}
+//		
+//
+//		
+//		return false;
+//	}
 	
-	private boolean canMoveDown() {
-		int x = (int) ((player.getX() + imageSizeX));
-		int y = (int) player.getY() - OFFSET_Y + imageChefSizeX;
-		if(x/imageSizeX >= manager.getCurrentMapLevel().getRowLen()) {
-			System.out.println(y + " " + manager.getCurrentMapLevel().getRowLen());
-			return false;
-		}
-		
-//		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
-//		rect.setLayoutX(x);
-//		rect.setLayoutY(y);
-//		pane.getChildren().add(rect);
-		
-//		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) + " attuale");
-//		System.out.println(((y/imageSizeY) + 1) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(((y/imageSizeY) + 1), x/imageSizeX) + " sotto");
-//		System.out.println();
-		
-		if(manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '|' || (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '-' && manager.getCurrentMapLevel().getMatrixValue((y/imageSizeY)+1, x/imageSizeX)=='|'))
-			return true;
-		return false;
-	}
-
-	private boolean canMoveUp() {
-		int x = (int) ((player.getX() + imageSizeX));
-		int y = (int) player.getY() - OFFSET_Y + imageChefSizeX;
-		
-		if((y/imageSizeY)-1 < 0) {
-			return false;
-		}
-//		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
-//		rect.setLayoutX(x);
-//		rect.setLayoutY(y);
-//		pane.getChildren().add(rect);
-		
-//		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) + " attuale");
-//		System.out.println(((y/imageSizeY) - 1) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(((y/imageSizeY) - 1), x/imageSizeX) + " sopra");
-//		System.out.println();
-		
-		if(manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '|' || (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '-' && manager.getCurrentMapLevel().getMatrixValue((y/imageSizeY)-1, x/imageSizeX)=='|'))
-			return true;
-		return false;
-	}
-
-	private boolean canMoveLeft() {
-		int x = (int) ((player.getX() + imageSizeX) - stepPlayer);
-		int y = (int) player.getY() - OFFSET_Y + imageChefSizeX;
-		if(x-1<0) {
-			return false;
-		}
-//		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
-//		rect.setLayoutX(x);
-//		rect.setLayoutY(y);
-//		pane.getChildren().add(rect);
-		
-		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX));
-		switch (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX)) {
-		case 'p':
-			return true;
-			
-		case 'd':
-			return true;
-			
-		case 'h':
-			return true;
-		case 's':
-			return true;
-		case 'u':
-			return true;
-			
-		case '-':
-			return true;
-
-		default:
-			break;
-		}
-		
-		return false;
-	}
 	
-	private boolean canMoveRight() {
-		int x = (int) ((player.getX() + imageSizeX) + stepPlayer);
-		int y = (int) player.getY() - OFFSET_Y + imageChefSizeX;
-		
-		if(x/imageSizeX>= manager.getCurrentMapLevel().getColLen()) {
-			return false;
-		}
-		
-//		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
-//		rect.setLayoutX(x);
-//		rect.setLayoutY(y);
-//		pane.getChildren().add(rect);
-		
-		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX));
-		switch (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX)) {
-		case 'p':
-			return true;
-			
-		case 'd':
-			return true;
-			
-		case 'h':
-			return true;
-		case 's':
-			return true;
-		case 'u':
-			return true;
-			
-		case '-':
-			return true;
-
-		default:
-			break;
-		}
-		
-
-		
-		return false;
-	}
+	////////////////////////////////////
+	////////  LISTENER SECTION /////////
+	////////////////////////////////////
 
 	private void createKeyListeners() {
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -255,51 +311,54 @@ public class GameView extends ViewManager implements IView {
 				else if(event.getCode() == KeyCode.DOWN)
 				{
 					isDownKeyPressed=true;
-				}
-				
-				
+				}	
 			}
 		});
 		
-		scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-
-			@Override
-			public void handle(KeyEvent event) {
-				
-				if(event.getCode() == KeyCode.LEFT)
-				{
-					isLeftKeyPressed=false;
-				}
-				else if(event.getCode() == KeyCode.RIGHT)
-				{
-					isRightKeyPressed=false;
-				}
-				else if(event.getCode() == KeyCode.UP)
-				{
-					isUpKeyPressed=false;
-				}
-				else if(event.getCode() == KeyCode.DOWN)
-				{
-					isDownKeyPressed=false;
-				}
-			}
-		});
+//		scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
+//
+//			@Override
+//			public void handle(KeyEvent event) {
+//				
+//				if(event.getCode() == KeyCode.LEFT)
+//				{
+//					isLeftKeyPressed=false;
+//				}
+//				else if(event.getCode() == KeyCode.RIGHT)
+//				{
+//					isRightKeyPressed=false;
+//				}
+//				else if(event.getCode() == KeyCode.UP)
+//				{
+//					isUpKeyPressed=false;
+//				}
+//				else if(event.getCode() == KeyCode.DOWN)
+//				{
+//					isDownKeyPressed=false;
+//				}
+//			}
+//		});
 		
 	}
 	
+	
+	/////////////////////////////////
+	///////// DRAW SECTION //////////
+	/////////////////////////////////
+	
+	
 	private void setPlayer() {
-		player = new ImageView(chefUrl);
+		chefImage = new ImageView(chefUrl);
 //		System.out.println(manager.getPlayer().getPosY() + " " + (manager.getPlayer().getPosX()));
-		player.setX((manager.getPlayer().getPosY() * imageSizeX) - imageSizeX/2);
-		player.setY(((manager.getPlayer().getPosX() * imageSizeY) + OFFSET_Y) - (imageChefSizeY - imageSizeY));
+		chefImage.setX((player.getPosY() * imageSizeX)-(imageSizeX/2));
+		chefImage.setY(((player.getPosX() * imageSizeY) + 65) );
 		
-		pane.getChildren().add(player);
+		pane.getChildren().add(chefImage);
 		
 	}
 
 	private void loadElements() {
-		Map map = manager.getLevels().get(manager.getCurrentLevel()-1);
-		HashMap<ImageView,PieceOfComponent> pieces = new HashMap<>();
+
 		
 		
 		for(BurgerComponent bc : map.getBurgerComponents()) {
@@ -383,17 +442,6 @@ public class GameView extends ViewManager implements IView {
 					
 					drawStair(i, j);
 					
-					break;
-				case 'p':
-					drawTile(i, j);
-					
-					if(i>0 && manager.getLevels().get(manager.getCurrentLevel() - 1).getMatrixValue(i - 1, j) == '|') {
-						drawTileStair(i, j);
-						drawStair(i, j);
-						
-					}
-					if(i == 0 && manager.getLevels().get(manager.getCurrentLevel() - 1).getMatrixValue(i + 1, j) == '|')
-						drawTileStair(i, j);
 					break;
 
 				default:
