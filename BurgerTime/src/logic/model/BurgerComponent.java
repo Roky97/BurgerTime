@@ -40,9 +40,34 @@ public class BurgerComponent {
 		return pieces;
 	}
 	
-	public boolean getAllPiecePressed() {
+	public boolean AllPiecePressed() {
 		checkIfAllPressed();
 		return allPiecesPressed;
+	}
+	
+	public void fallDown() {
+		for(PieceOfComponent p: pieces) {
+			p.setPosX(p.getPosX()+4);
+		}
+	}
+	
+	public int containPiece(PieceOfComponent piece) {
+		
+		int index=4;
+		for(int i=0;i<pieces.size();i++) {
+			if(pieces.get(i).getPosX()==piece.getPosX() && pieces.get(i).getPosY()==piece.getPosY())
+			{
+				return i;
+			}
+		}
+		return index;
+	}
+	
+	public void setAllPiecePressed(boolean b) {
+		for(PieceOfComponent p: pieces) {
+			p.setPressed(b);
+		}
+		allPiecesPressed=b;
 	}
 
 }

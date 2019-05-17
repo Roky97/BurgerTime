@@ -20,6 +20,7 @@ import logic.model.BurgerComponent;
 import logic.model.Map;
 import logic.model.PieceOfComponent;
 import logic.model.Player;
+import logic.model.TypeComponent;
 
 public class GameView extends ViewManager implements IView {
 
@@ -40,6 +41,7 @@ public class GameView extends ViewManager implements IView {
 	private GameManager manager;
 	private Player player;
 	private Map map;
+	private ArrayList<BurgerComponent> burgerComponents;
 
 	
 	private AnimationTimer gameTimer;
@@ -64,6 +66,7 @@ public class GameView extends ViewManager implements IView {
 		manager = new GameManager();
 		player=manager.getPlayer();
 		map = manager.getLevels().get(manager.getCurrentLevel()-1);
+		burgerComponents=map.getBurgerComponents();
 		
 		lifesImage = new ArrayList<ImageView>();
 		pieces = new HashMap<>();
@@ -87,6 +90,7 @@ public class GameView extends ViewManager implements IView {
 			public void handle(long now) {
 				movePlayer();
 				checkIfPlayerOnPiece();
+//				checkEntireComponentPressed();
 			}	
 		};
 		
@@ -141,23 +145,61 @@ public class GameView extends ViewManager implements IView {
 	
 	private void checkIfPlayerOnPiece() {
 		
-		for(BurgerComponent bc : map.getBurgerComponents()) {
-			for(int i = 0; i< bc.getPieces().size(); i++) {
-				if( (bc.getPieces().get(i).getPosX()-1==player.getPosX()) && (bc.getPieces().get(i).getPosY()==player.getPosY())) {
+					
 					for (Entry<ImageView, PieceOfComponent> entry : pieces.entrySet()) {
-						 if((entry.getValue().getPosX()==bc.getPieces().get(i).getPosX() && entry.getValue().getPosY()==bc.getPieces().get(i).getPosY()) && (entry.getValue().getPressed()==false))
+						 if((entry.getValue().getPosX()-1==player.getPosX() && entry.getValue().getPosY()==player.getPosY()) && (entry.getValue().getPressed()==false))
 					     {
-							 
+	 
 							 entry.getValue().setPressed(true);
 							 entry.getKey().setY(entry.getKey().getY()+10);
-							 return;
+ 
 					     }
 					}
-				}	
-			}
-		}
-		
-	}
+					
+					ArrayList<ImageView> componentImages=new ArrayList<ImageView>();
+					
+					for(BurgerComponent bc: burgerComponents) {
+						componentImages=new ArrayList<ImageView>();
+						
+						if(bc.AllPiecePressed()) {
+							
+							for(PieceOfComponent p: bc.getPieces()) {
+								
+								
+								for(Entry<ImageView, PieceOfComponent> entry : pieces.entrySet()) {
+									
+									if(p.getPosX()==entry.getValue().getPosX() && p.getPosY()==entry.getValue().getPosY() && entry.getValue().getPressed()) {
+										entry.getValue().setPosX(entry.getValue().getPosX()+4);
+										entry.getValue().setPressed(false);
+										componentImages.add(entry.getKey());
+									}
+								}
+							}
+							
+							
+							bc.setAllPiecePressed(false);
+							
+							for(BurgerComponent bc2: burgerComponents ) {
+								if(bc2.getPieces().get(0).getPosX()==bc.getPieces().get(0).getPosX() && bc2.getPieces().get(0).getPosY()==bc.getPieces().get(0).getPosY() && bc2.getType()!=bc.getType()){
+									bc2.setAllPiecePressed(true);
+								}
+							}
+
+							while(((componentImages.get(componentImages.size()-1).getY()-OFFSET_Y)/imageSizeY)!=bc.getPieces().get(0).getPosX()) {
+						
+								for(int i=0;i<componentImages.size();i++) {
+									componentImages.get(i).setY(componentImages.get(i).getY()+0.5);
+								}
+							
+							}
+						}
+					}
+									
+								
+	}	
+	
+	
+
 	
 	
 	
@@ -361,7 +403,7 @@ public class GameView extends ViewManager implements IView {
 
 		
 		
-		for(BurgerComponent bc : map.getBurgerComponents()) {
+		for(BurgerComponent bc : burgerComponents) {
 			for(int i = 0; i< bc.getPieces().size(); i++) {
 
 				ImageView temp = new ImageView(bc.getType().getUrl()+ (i+1) + ".png");

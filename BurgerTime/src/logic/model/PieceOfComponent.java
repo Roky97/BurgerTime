@@ -36,4 +36,6 @@ public class PieceOfComponent {
 		pressed=b;
 	}
 	
+
+	
 }

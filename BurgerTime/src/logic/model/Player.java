@@ -57,7 +57,7 @@ public class Player {
 	}
 
 	public boolean moveDown() {
-		if(posX+1<20) {
+		if(posX+1<21) {
 			if(map.getMatrixValue(posX+1, posY)=='|') {
 				posX+=1;
 				return true;
