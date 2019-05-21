@@ -107,7 +107,7 @@ public class Map {
 					b.setType(TypeComponent.DOWN_BREAD);
 					for(int k=j;k<j+4;k++) {
 //						PieceOfComponent p=new PieceOfComponent(screenWeight/(i+1),screenHeight/(k+1));
-						PieceOfComponent p=new PieceOfComponent(i,k);
+						PieceOfComponent p=new PieceOfComponent(i,k,this);
 						b.addPiece(p);
 					}
 					burgerComponents.add(b);
@@ -118,7 +118,7 @@ public class Map {
 					b.setType(TypeComponent.HAMBUGER);
 					for(int k=j;k<j+4;k++) {
 //						PieceOfComponent p=new PieceOfComponent(screenWeight/(i+1),screenHeight/(k+1));
-						PieceOfComponent p=new PieceOfComponent(i,k);
+						PieceOfComponent p=new PieceOfComponent(i,k,this);
 						b.addPiece(p);
 					}
 					burgerComponents.add(b);
@@ -129,7 +129,7 @@ public class Map {
 					b.setType(TypeComponent.SALAD);
 					for(int k=j;k<j+4;k++) {
 //						PieceOfComponent p=new PieceOfComponent(screenWeight/(i+1),screenHeight/(k+1));
-						PieceOfComponent p=new PieceOfComponent(i,k);
+						PieceOfComponent p=new PieceOfComponent(i,k,this);
 						b.addPiece(p);
 					}
 					burgerComponents.add(b);
@@ -140,7 +140,7 @@ public class Map {
 					b.setType(TypeComponent.UP_BREAD);
 					for(int k=j;k<j+4;k++) {
 //						PieceOfComponent p=new PieceOfComponent(screenWeight/(i+1),screenHeight/(k+1));
-						PieceOfComponent p=new PieceOfComponent(i,k);
+						PieceOfComponent p=new PieceOfComponent(i,k,this);
 						b.addPiece(p);
 					}
 					burgerComponents.add(b);

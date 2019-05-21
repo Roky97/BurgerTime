@@ -4,11 +4,13 @@ public class PieceOfComponent {
 
 	private int posX;
 	private int posY;
+	private Map map;
 	private boolean pressed;
 	
-	public PieceOfComponent(int x,int y) {
+	public PieceOfComponent(int x,int y,Map m) {
 		posX=x;
 		posY=y;
+		map=m;
 		pressed=false;
 	}
 	
@@ -34,6 +36,29 @@ public class PieceOfComponent {
 	
 	public void setPressed(boolean b) {
 		pressed=b;
+	}
+	
+	public void fallTillNextFloor() {
+		
+		for(int i=posX+1;i<map.getRowLen();i++) {
+			
+			if((map.getMatrixValue(i, posY)!='1') && (map.getMatrixValue(i, posY)!='0')) {
+				posX=i;
+				return;
+			}
+		}
+		
+	}
+	
+	
+	public void fallToCompleteBurger(int howManyComponent) {
+		
+		for(int i=posX+1;i<map.getRowLen();i++) {
+			if((map.getMatrixValue(i, posY)!='1') && (map.getMatrixValue(i, posY)!='0')) {
+				posX=i-howManyComponent;
+				return;
+			}
+		}
 	}
 	
 

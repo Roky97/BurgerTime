@@ -4,11 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import gui.model.GameSubScene;
+import gui.model.GameButton;
 import javafx.animation.AnimationTimer;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
@@ -45,6 +50,7 @@ public class GameView extends ViewManager implements IView {
 
 	
 	private AnimationTimer gameTimer;
+	private GameSubScene endGameSubScene;
 	
 	private boolean isLeftKeyPressed = false;
 	private boolean isRightKeyPressed = false;
@@ -78,6 +84,7 @@ public class GameView extends ViewManager implements IView {
 		drawLifes();
 		
 		createKeyListeners();
+		createSubScenes();
 		gameLoop();
 		
 		mainStage.show();
@@ -90,7 +97,7 @@ public class GameView extends ViewManager implements IView {
 			public void handle(long now) {
 				movePlayer();
 				checkIfPlayerOnPiece();
-//				checkEntireComponentPressed();
+				checkVictory();
 			}	
 		};
 		
@@ -146,7 +153,7 @@ public class GameView extends ViewManager implements IView {
 	private void checkIfPlayerOnPiece() {
 		
 					
-					for (Entry<ImageView, PieceOfComponent> entry : pieces.entrySet()) {
+					for (Entry<ImageView, PieceOfComponent> entry : pieces.entrySet()) { //CONTROLLIAMO SE IL PLAYER SI SOPRA UN PEZZO DI COMPONENTE. SE IMPOSTIAMO IL SUO VALORE "pressato" A TRUE
 						 if((entry.getValue().getPosX()-1==player.getPosX() && entry.getValue().getPosY()==player.getPosY()) && (entry.getValue().getPressed()==false))
 					     {
 	 
@@ -161,17 +168,24 @@ public class GameView extends ViewManager implements IView {
 					for(BurgerComponent bc: burgerComponents) {
 						componentImages=new ArrayList<ImageView>();
 						
-						if(bc.AllPiecePressed()) {
+						if(bc.AllPiecePressed()) {  //SE VI È UN BURGER COMPONENT TOTALMENTE PRESSATO FISSIAMO LE POSIZIONI DEI SUOI PEZZI PARI ALLA POSIZIONE DEL PAVIMENTO SOTTOSTANTE
+													//E SALVIAMO LE IMMAGINI RELATIVE AI SUOI PEZZI NELL'ARRAY componentImages
 							
 							for(PieceOfComponent p: bc.getPieces()) {
-								
-								
 								for(Entry<ImageView, PieceOfComponent> entry : pieces.entrySet()) {
 									
-									if(p.getPosX()==entry.getValue().getPosX() && p.getPosY()==entry.getValue().getPosY() && entry.getValue().getPressed()) {
-										entry.getValue().setPosX(entry.getValue().getPosX()+4);
+									if(p.getPosX()==entry.getValue().getPosX() && p.getPosY()==entry.getValue().getPosY() && entry.getValue().getPressed() && p.getPosX()!=21) { //GESTIAMO IL CASO IN CUI IL COMPONENTE CADE
+										entry.getValue().fallTillNextFloor();
 										entry.getValue().setPressed(false);
 										componentImages.add(entry.getKey());
+									}
+									else if(p.getPosX()==entry.getValue().getPosX() && p.getPosY()==entry.getValue().getPosY() && entry.getValue().getPressed()){
+										
+										 
+										entry.getValue().fallToCompleteBurger(howManyComponentCompleted(p.getPosY()));
+										entry.getValue().setPressed(false);
+										componentImages.add(entry.getKey());
+										bc.setCompleted(true);
 									}
 								}
 							}
@@ -197,6 +211,38 @@ public class GameView extends ViewManager implements IView {
 									
 								
 	}	
+	
+	
+	
+	private int howManyComponentCompleted(int posY) {
+		
+		int cont=0;
+		for(BurgerComponent bc: burgerComponents) {
+			
+			if(bc.getPieces().get(0).getPosX()>21 && bc.getPieces().get(0).getPosY()==posY) {
+				cont++;
+			}
+		}
+		
+		return cont;
+	}
+	
+	
+	private void checkVictory() {
+		
+		for(BurgerComponent bc: burgerComponents) {
+			if(bc.getCompleted()==false) {
+				System.out.println("ancora nada");
+				return;
+			}
+		}
+		
+		
+		System.out.println("il frocio ha vinto");
+		gameTimer.stop();
+		endGameSubScene.moveSubScene();
+		
+	}
 	
 	
 
@@ -504,6 +550,55 @@ public class GameView extends ViewManager implements IView {
 	public void createButtons() {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void createSubScenes() {
+		endGameSubScene = new GameSubScene();
+		endGameSubScene.setLabel("YOU WIN");
+		endGameSubScene.getLabel().setStyle("-fx-text-fill : Gold;");
+
+		ArrayList<GameButton> buttons = new ArrayList<GameButton>();
+		final GameButton restart = new GameButton("RESTART");
+		
+//		restart.setOnAction(new EventHandler<ActionEvent>() {
+//			public void handle(ActionEvent event) {
+//				playSudoku(easy);
+//			}
+//
+//		});
+		buttons.add(restart);
+		final GameButton menù = new GameButton("MENÙ");
+		
+//		menù.setOnAction(new EventHandler<ActionEvent>() {
+//			public void handle(ActionEvent event) {
+//				playSudoku(medium);
+//			}
+//		});
+		
+		buttons.add(menù);
+//		final GameButton hard = new GameButton("HARD");
+//		hard.setDifficulty(DIFFICULTY.HARD);
+//		hard.setDifficultyStyle();
+//		hard.setOnAction(new EventHandler<ActionEvent>() {
+//			public void handle(ActionEvent event) {
+//				playSudoku(hard);
+//			}
+//		});
+//		buttons.add(hard);
+
+		endGameSubScene.addButtons(buttons);
+
+		pane.getChildren().add(endGameSubScene);
+
+		VBox buttonsBox = new VBox();
+		buttonsBox.setSpacing(20);
+		buttonsBox.setAlignment(Pos.CENTER_RIGHT);
+		buttonsBox.getChildren().addAll(endGameSubScene.getButtons());
+		buttonsBox.setLayoutX(130);
+		buttonsBox.setLayoutY(100);
+
+		endGameSubScene.getPane().getChildren().add(endGameSubScene.getLabel());
+		endGameSubScene.getPane().getChildren().add(buttonsBox);
 	}
 
 	@Override

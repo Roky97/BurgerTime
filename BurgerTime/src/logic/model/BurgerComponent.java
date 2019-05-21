@@ -6,6 +6,7 @@ public class BurgerComponent {
 	
 	ArrayList<PieceOfComponent> pieces;
 	boolean allPiecesPressed;
+	boolean completed;
 	TypeComponent type;
 	Map map;
 	
@@ -21,6 +22,7 @@ public class BurgerComponent {
 		map=m;
 		allPiecesPressed=false;
 		pieces=new ArrayList<PieceOfComponent>();
+		completed=false;
 	}
 	
 	public void addPiece(PieceOfComponent p) {
@@ -45,11 +47,6 @@ public class BurgerComponent {
 		return allPiecesPressed;
 	}
 	
-	public void fallDown() {
-		for(PieceOfComponent p: pieces) {
-			p.setPosX(p.getPosX()+4);
-		}
-	}
 	
 	public int containPiece(PieceOfComponent piece) {
 		
@@ -68,6 +65,14 @@ public class BurgerComponent {
 			p.setPressed(b);
 		}
 		allPiecesPressed=b;
+	}
+	
+	public boolean getCompleted() {
+		return completed;
+	}
+	
+	public void setCompleted(boolean b) {
+		completed=b;
 	}
 
 }
