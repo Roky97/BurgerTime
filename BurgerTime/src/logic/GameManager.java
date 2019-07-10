@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javax.swing.text.AbstractDocument.LeafElement;
 
+import logic.model.Enemy;
 import logic.model.Map;
 import logic.model.Player;
 
@@ -15,12 +16,14 @@ public class GameManager {
 	private int lifes = 4; //gamemanger
 	
 	Player player;
+	ArrayList<Enemy> enemies;
 	
 	public GameManager() {
 		levels = new ArrayList<Map>();
 		loadLevels();
 		
 		player = levels.get(currLevel-1).getPlayer();
+		enemies= levels.get(currLevel-1).getEnemies();
 	}
 	
 	public Map getCurrentMapLevel() {
@@ -44,6 +47,10 @@ public class GameManager {
 	
 	public Player getPlayer() {
 		return player;
+	}
+	
+	public ArrayList<Enemy> getEnemies(){
+		return enemies;
 	}
 
 	public int getNumbersOfLevels() {

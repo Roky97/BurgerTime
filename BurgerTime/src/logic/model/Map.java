@@ -88,10 +88,16 @@ public class Map {
 		for(int i=0;i<rowLen;i++) {
 			for(int j=0;j<colLen;j++) {
 				Enemy e;
-				if(matrix[i][j]==2) {
-					e=new Enemy(this);
-					e.setPosX(screenWeight/(i+1));
-					e.setPosY(screenHeight/(j+1));
+				if(matrix[i][j]=='2') {
+					matrix[i][j]='0';
+					e=new Enemy(i,j,this);
+					e.setType(TypeEnemy.EGG);
+					enemies.add(e);
+				}
+				else if(matrix[i][j]=='3') {
+					matrix[i][j]='0';
+					e=new Enemy(i,j,this);
+					e.setType(TypeEnemy.WRUSTEL);
 					enemies.add(e);
 				}
 			}

@@ -24,6 +24,7 @@ import logic.GameManager;
 import logic.ai.Path;
 import logic.ai.PathGenerator;
 import logic.model.BurgerComponent;
+import logic.model.Enemy;
 import logic.model.Map;
 import logic.model.PieceOfComponent;
 import logic.model.Player;
@@ -48,6 +49,7 @@ public class GameView extends ViewManager implements IView {
 	
 	private GameManager manager;
 	private Player player;
+	private ArrayList<Enemy> enemies;
 	private Map map;
 	private ArrayList<BurgerComponent> burgerComponents;
 	private ArrayList<Position> stairsPositions;
@@ -65,6 +67,8 @@ public class GameView extends ViewManager implements IView {
 	private String tileStairUrl = "/gui/resources/game/tileStair.png";
 	private String lifeUrl = "/gui/resources/game/life.png";
 	private String chefUrl = "/gui/resources/game/chef.png";
+	private String eggEnemy= "/gui/resources/game/enemy_egg.png";
+	private String wrustelEnemy= "/gui/resources/game/enemy_wrustel.png";
 	
 	private PieceOfComponent destination;
 
@@ -73,6 +77,7 @@ public class GameView extends ViewManager implements IView {
 //		mainStage.setResizable(false);
 		manager = new GameManager();
 		player=manager.getPlayer();
+		enemies=manager.getEnemies();
 		map = manager.getLevels().get(manager.getCurrentLevel()-1);
 		burgerComponents=map.getBurgerComponents();
 		path=new ArrayList<Path>();
@@ -444,6 +449,10 @@ public class GameView extends ViewManager implements IView {
 		chefImage.setY(((player.getPosX() * imageSizeY) + 65) );
 		
 		pane.getChildren().add(chefImage);
+		
+	}
+	
+	private void setEnemies() {
 		
 	}
 
