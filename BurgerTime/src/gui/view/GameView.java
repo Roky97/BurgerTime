@@ -21,10 +21,13 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import logic.GameManager;
+import logic.ai.Path;
+import logic.ai.PathGenerator;
 import logic.model.BurgerComponent;
 import logic.model.Map;
 import logic.model.PieceOfComponent;
 import logic.model.Player;
+import logic.model.Position;
 import logic.model.TypeComponent;
 
 public class GameView extends ViewManager implements IView {
@@ -47,17 +50,15 @@ public class GameView extends ViewManager implements IView {
 	private Player player;
 	private Map map;
 	private ArrayList<BurgerComponent> burgerComponents;
+	private ArrayList<Position> stairsPositions;
 
 	
-	private AnimationTimer gameTimer;
+	private AnimationTimer moveTimer;
 	private GameSubScene endGameSubScene;
 	
-	private boolean isLeftKeyPressed = false;
-	private boolean isRightKeyPressed = false;
-	private boolean isUpKeyPressed = false;
-	private boolean isDownKeyPressed = false;
+	private ArrayList<Path> path;
 	
-	private int stepPlayer = 1;
+	
 	
 	private String tileUrl= "/gui/resources/game/tile.png";
 	private String stairUrl = "/gui/resources/game/stair.png";
@@ -65,101 +66,129 @@ public class GameView extends ViewManager implements IView {
 	private String lifeUrl = "/gui/resources/game/life.png";
 	private String chefUrl = "/gui/resources/game/chef.png";
 	
-	public GameView() {
+	private PieceOfComponent destination;
+
+	GameView() {
 		super(WIDTH,HEIGHT);
 //		mainStage.setResizable(false);
-		
 		manager = new GameManager();
 		player=manager.getPlayer();
 		map = manager.getLevels().get(manager.getCurrentLevel()-1);
 		burgerComponents=map.getBurgerComponents();
+		path=new ArrayList<Path>();
+		stairsPositions=map.getStairsPositions();
 		
+		
+
+		destination=new PieceOfComponent(player.getPosX(),player.getPosY(),map);
+
 		lifesImage = new ArrayList<ImageView>();
 		pieces = new HashMap<>();
 		
 		createBackground();
 		loadElements();
 		setPlayer();
-//		setEnemies();
 		drawLifes();
 		
-		createKeyListeners();
 		createSubScenes();
-		gameLoop();
+
 		
-		mainStage.show();
+		mainStage.show();	
+		gameLoop();
 	}
 	
+
 	private void gameLoop() {
-		gameTimer = new AnimationTimer() {
+		
+		moveTimer = new AnimationTimer() {
 			
+            private long lastUpdate = 0 ;
 			@Override
 			public void handle(long now) {
-				movePlayer();
-				checkIfPlayerOnPiece();
-				checkVictory();
+            	
+
+            	if (now - lastUpdate >= 120_000_000) {
+
+            		
+            		if(destination.getPosX()==player.getPosX() && destination.getPosY()==player.getPosY()) { //SE LA POS DEL PLAYER È UGUALE ALLA DESTINAZIONE DA RAGGIUNGERE, CALCOLIAMO UN'ALTRA DESTINAZIONE
+            			findNextDestination(player.getPosX(),player.getPosY()); 			
+            		}
+            		movePlayer();
+        			checkVictory();
+	            	lastUpdate=now;
+            	}
+            	
+
+    		
 			}	
 		};
-		
-		gameTimer.start();
+		moveTimer.start();
 	}
 	
+	private void findPath() {		
+		if(destination.getPosX()!=player.getPosX() || destination.getPosY()!=player.getPosY() ) {
+			PathGenerator pathGenerator=new PathGenerator(map);
+			pathGenerator.setFacts(player, destination);
+			path=pathGenerator.findSolution();
+		}
+	}
 	
 	private void movePlayer() {
-		if(isLeftKeyPressed && !isRightKeyPressed) {
-			if(player.moveLeft()) {	
-				while((chefImage.getX()/imageSizeX)!=player.getPosY()) {
-					chefImage.setX(chefImage.getX() - 1);
-				}		
-			}
 			
-			isLeftKeyPressed=false;
-		}
-		
-		if(!isLeftKeyPressed && isRightKeyPressed) {
-			if(player.moveRight()) {
-				while((chefImage.getX()/imageSizeX)!=player.getPosY()) {
-					chefImage.setX(chefImage.getX() + 1);
-				}	
+		if(path.size()>0) {
+
+			Path nextPos=path.get(0);
+			path.remove(0);
+
+			if(nextPos.getRow()>player.getPosX() && nextPos.getColumn()==player.getPosY()) {
+				if(player.moveDown()) {
+					while(((chefImage.getY()-65)/imageSizeY)!=player.getPosX()) {	
+						chefImage.setY(chefImage.getY() + 1);
+					}	
+				}
 			}
-			
-			isRightKeyPressed=false;
-		}
-		
-		if(isUpKeyPressed && !isDownKeyPressed) {
-			if(player.moveUp()) {
+			else if(nextPos.getRow()<player.getPosX() && nextPos.getColumn()==player.getPosY()) {
+				if(player.moveUp()) {
+					while(((chefImage.getY()-65)/imageSizeY)!=player.getPosX()) {
+						chefImage.setY(chefImage.getY() - 1);
+					}	
+				}
+			}
+			else if(nextPos.getRow()==player.getPosX() && nextPos.getColumn()>player.getPosY()) {
 				
-				while(((chefImage.getY()-65)/imageSizeY)!=player.getPosX()) {
-					chefImage.setY(chefImage.getY() - 1);
-				}	
+				if(player.moveRight()) {
+					while((chefImage.getX()/imageSizeX)!=player.getPosY()) {
+						chefImage.setX(chefImage.getX() + 1);
+					}	
+				}
+			}
+			else if(nextPos.getRow()==player.getPosX() && nextPos.getColumn()<player.getPosY()) {
+	
+				if(player.moveLeft()) {	
+					while((chefImage.getX()/imageSizeX)!=player.getPosY()) {
+						chefImage.setX(chefImage.getX() - 1);
+					}		
+				}
 			}
 			
-			isUpKeyPressed=false;
+			checkIfPlayerOnPiece();
 		}
 		
-		if(!isUpKeyPressed && isDownKeyPressed) {
-			if(player.moveDown()) {
-				
-				while(((chefImage.getY()-65)/imageSizeY)!=player.getPosX()) {	
-					chefImage.setY(chefImage.getY() + 1);
-				}	
-			}
-			
-			isDownKeyPressed=false;
-		}		
 		
 	}
 	
-	private void checkIfPlayerOnPiece() {
+	
+	
+	
+	private void checkIfPlayerOnPiece() { //CONTROLLIAMO SE IL PLAYER STA CALPESTANDO QUALCHE PEZZO DI HAMBURGER/INS
 		
 					
 					for (Entry<ImageView, PieceOfComponent> entry : pieces.entrySet()) { //CONTROLLIAMO SE IL PLAYER SI SOPRA UN PEZZO DI COMPONENTE. SE IMPOSTIAMO IL SUO VALORE "pressato" A TRUE
-						 if((entry.getValue().getPosX()-1==player.getPosX() && entry.getValue().getPosY()==player.getPosY()) && (entry.getValue().getPressed()==false))
+						if((entry.getValue().getPosX()-1==player.getPosX() && entry.getValue().getPosY()==player.getPosY()) && (entry.getValue().getPressed()==false))
 					     {
-	 
+							 
 							 entry.getValue().setPressed(true);
 							 entry.getKey().setY(entry.getKey().getY()+10);
- 
 					     }
 					}
 					
@@ -208,8 +237,6 @@ public class GameView extends ViewManager implements IView {
 							}
 						}
 					}
-									
-								
 	}	
 	
 	
@@ -230,204 +257,179 @@ public class GameView extends ViewManager implements IView {
 	
 	private void checkVictory() {
 		
-		for(BurgerComponent bc: burgerComponents) {
+		for(BurgerComponent bc: burgerComponents) { //SE TUTTI I COMPONENT SONO PRESSATI 
 			if(bc.getCompleted()==false) {
-				System.out.println("ancora nada");
 				return;
 			}
 		}
-		
-		
-		System.out.println("il frocio ha vinto");
-		gameTimer.stop();
+		moveTimer.stop();
 		endGameSubScene.moveSubScene();
 		
 	}
 	
 	
-
-	
-	
-	
-//	/////////////////////////////////
-//	//// CHECK MOVEMENT SECTION /////
-//	/////////////////////////////////
-//	
-//	private boolean canMoveDown() {
-//		int x = (int) ((chefImage.getX() + imageSizeX));
-//		int y = (int) chefImage.getY() - OFFSET_Y + imageChefSizeX;
-//		if(x/imageSizeX >= manager.getCurrentMapLevel().getRowLen()) {
-//			System.out.println(y + " " + manager.getCurrentMapLevel().getRowLen());
-//			return false;
-//		}
-//		
-////		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
-////		rect.setLayoutX(x);
-////		rect.setLayoutY(y);
-////		pane.getChildren().add(rect);
-//		
-////		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) + " attuale");
-////		System.out.println(((y/imageSizeY) + 1) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(((y/imageSizeY) + 1), x/imageSizeX) + " sotto");
-////		System.out.println();
-//		
-//		if(manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '|' || (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '-' && manager.getCurrentMapLevel().getMatrixValue((y/imageSizeY)+1, x/imageSizeX)=='|'))
-//			return true;
-//		return false;
-//	}
-//
-//	private boolean canMoveUp() {
-//		int x = (int) ((chefImage.getX() + imageSizeX));
-//		int y = (int) chefImage.getY() - OFFSET_Y + imageChefSizeX;
-//		
-//		if((y/imageSizeY)-1 < 0) {
-//			return false;
-//		}
-////		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
-////		rect.setLayoutX(x);
-////		rect.setLayoutY(y);
-////		pane.getChildren().add(rect);
-//		
-////		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) + " attuale");
-////		System.out.println(((y/imageSizeY) - 1) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(((y/imageSizeY) - 1), x/imageSizeX) + " sopra");
-////		System.out.println();
-//		
-//		if(manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '|' || (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX) == '-' && manager.getCurrentMapLevel().getMatrixValue((y/imageSizeY)-1, x/imageSizeX)=='|'))
-//			return true;
-//		return false;
-//	}
-//
-//	private boolean canMoveLeft() {
-//		int x = (int) ((chefImage.getX() + imageSizeX) - stepPlayer);
-//		int y = (int) chefImage.getY() - OFFSET_Y + imageChefSizeX;
-//		if(x-1<0) {
-//			return false;
-//		}
-////		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
-////		rect.setLayoutX(x);
-////		rect.setLayoutY(y);
-////		pane.getChildren().add(rect);
-//		
-//		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX));
-//		switch (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX)) {
-//		case 'p':
-//			return true;
-//			
-//		case 'd':
-//			return true;
-//			
-//		case 'h':
-//			return true;
-//		case 's':
-//			return true;
-//		case 'u':
-//			return true;
-//			
-//		case '-':
-//			return true;
-//
-//		default:
-//			break;
-//		}
-//		
-//		return false;
-//	}
-//	
-//	private boolean canMoveRight() {
-//		
-//		int x = (int) ((chefImage.getX() + imageSizeX) + stepPlayer);
-//		int y = (int) chefImage.getY() - OFFSET_Y + imageChefSizeX;
-//		
-//		if(x/imageSizeX>= manager.getCurrentMapLevel().getColLen()) {
-//			return false;
-//		}
-//		
-////		Rectangle rect = new Rectangle(5, 5, Color.WHITE);
-////		rect.setLayoutX(x);
-////		rect.setLayoutY(y);
-////		pane.getChildren().add(rect);
-//		
-//		System.out.println((y/imageSizeY) + " " + ( x/imageSizeX) + ": " + manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX));
-//		switch (manager.getCurrentMapLevel().getMatrixValue(y/imageSizeY, x/imageSizeX)) {
-//		case 'p':
-//			return true;
-//			
-//		case 'd':
-//			return true;
-//			
-//		case 'h':
-//			return true;
-//		case 's':
-//			return true;
-//		case 'u':
-//			return true;
-//			
-//		case '-':
-//			return true;
-//
-//		default:
-//			break;
-//		}
-//		
-//
-//		
-//		return false;
-//	}
-	
-	
-	////////////////////////////////////
-	////////  LISTENER SECTION /////////
-	////////////////////////////////////
-
-	private void createKeyListeners() {
-		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-
-			@Override
-			public void handle(KeyEvent event) {
-				if(event.getCode() == KeyCode.LEFT)
-				{
-					isLeftKeyPressed=true;
-
-				}
-				else if(event.getCode() == KeyCode.RIGHT)
-				{
-					isRightKeyPressed=true;
-				}
-				else if(event.getCode() == KeyCode.UP)
-				{
-					isUpKeyPressed=true;
-				}
-				else if(event.getCode() == KeyCode.DOWN)
-				{
-					isDownKeyPressed=true;
-				}	
-			}
-		});
+	private int findComponentInSameRow(int row,int col,PieceOfComponent dest) {  //QUESTA FUNZIONE RESTITUISCE LA DISTANZA MINIMA DA ROW/COL AL PEZZO DI COMPONENTE PIÙ VICINO NELLA STESSA RIGA DI ROW.
+																				 //E SALVA IL COMPONENTE IN DEST. RESTITUISCE 0 SE NON VI È NESSUN PEZZO DI COMP NELLA STESSA RIGA.
 		
-//		scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-//
-//			@Override
-//			public void handle(KeyEvent event) {
-//				
-//				if(event.getCode() == KeyCode.LEFT)
-//				{
-//					isLeftKeyPressed=false;
-//				}
-//				else if(event.getCode() == KeyCode.RIGHT)
-//				{
-//					isRightKeyPressed=false;
-//				}
-//				else if(event.getCode() == KeyCode.UP)
-//				{
-//					isUpKeyPressed=false;
-//				}
-//				else if(event.getCode() == KeyCode.DOWN)
-//				{
-//					isDownKeyPressed=false;
+		ArrayList<PieceOfComponent> destinations=new ArrayList<PieceOfComponent>();
+		for(BurgerComponent b: burgerComponents) {
+			for(PieceOfComponent piece: b.getPieces()) {
+				if(piece.getPosX()-1 == row && !piece.getPressed()) {
+					destinations.add(piece);
+				}
+			}
+		}
+		
+		int max=20;
+		if(destinations.size()>0) {
+			
+			for(PieceOfComponent piece: destinations) {
+				if(col>piece.getPosY() && col-piece.getPosY()<max) {
+					dest.setPosX(piece.getPosX());
+					dest.setPosY(piece.getPosY());
+					max=col-piece.getPosY();
+				}
+				else if(col<piece.getPosY()&& piece.getPosY()-col<max) {
+					dest.setPosX(piece.getPosX());
+					dest.setPosY(piece.getPosY());
+					max=piece.getPosY()-col;
+				}
+			}
+			
+			dest.setPosX(dest.getPosX()-1);
+			System.out.println("destination: " + dest.getPosX()+" "+dest.getPosY());
+			
+			return max;
+		}
+		else {
+			return 0;
+		}
+	}
+	
+	
+	private void findNextDestination(int row,int col) { //FUNZIONE PER TROVARE IL PEZZO DI COMPONENTE PIÙ VICINO 
+		
+		int distance=findComponentInSameRow(row, col,destination);  //TROVIAMO IL PEZZO DI COMPONENTE PIÙ VICINO SULLA STESSA RIGA PARTENDO DALLA POS DEL PLAYER
+		
+		
+		ArrayList<Position> availableStairs=new ArrayList<Position>(); //SUCCESSIVAMENTE CONSIDERIAMO TUTTE LE SCALE PIÙ VICINE DEL PEZZO DI COMP TROVATO NELLA RIGA PRECEDENTE
+		
+		if(distance!=0) { //SE DISTANCE È DIVERSO DA 0 VUOL DIRE CHE C'È UN PEZZO DI COMP SULLA STESSA RIGA E QUINDI PRENDIAMO LE SCALE CON DISTANZA INFERIORE A QUELLA DEL PEZZO.
+			for(Position p: stairsPositions) {
+				if(p.getPosX()==row) {
+					
+					if(col>p.getPosY() && col-p.getPosY()<distance) {
+						p.setDistanceFromPlayer(col-p.getPosY());
+						availableStairs.add(p);
+					}
+					else if(col<p.getPosY()&& p.getPosY()-col<distance) {
+						p.setDistanceFromPlayer(p.getPosY()-col);
+						availableStairs.add(p);
+					}					
+				}
+			}
+		}
+		else {			//SE DISTANCE==0 NON VI È UN PEZZO DI COMP SULLA STESSA RIGA DEL PLAYER E QUINDI CONSIDERIAMO TUTTE LE SCALE SULLA STESSA RIGA DEL PLAYER
+			for(Position p: stairsPositions) {
+				if(p.getPosX()==row) {
+					
+					if(col>p.getPosY()) {
+						p.setDistanceFromPlayer(col-p.getPosY());
+					}
+					else if(col<p.getPosY()) {
+						p.setDistanceFromPlayer(p.getPosY()-col);
+					}
+					
+					availableStairs.add(p);
+				}
+			}	
+		}
+		
+		for(Position p: availableStairs) { 
+			p.findUpFloor(); //PER CIASCUNA SCALA TROVIAMO PIANO SUPERIORE E INFERIORE
+			System.out.println("ScalaX: "+ p.getPosX() + ", ScalaY: "+p.getPosY()+". UpFloor: "+ p.getUpFloor());
+			p.findDownFloor();
+			
+			p.setDistanceUpFloorUpPiece(findComponentInSameRow(p.getUpFloor(), p.getPosY(), p.getUpPiece())); //SETTIAMO LA DISTANZA DAL PIANO SUPERIORE DELLA SCALA AL PEZZO DI COMP PIÙ VICINO AD ESSO
+			p.setDistanceDownFloorDownPiece(findComponentInSameRow(p.getDownFloor(), p.getPosY(), p.getDownPiece())); //SETTIAMO LA DISTANZA DAL PIANO INFERIORE DELLA SCALA AL PEZZO DI COMP PIÙ VICINO AD ESSO
+			p.findNearestPiece(); //CON QUESTA FUNZIONE DETERMINIAMO PER CIASCUNA SCALA QUAL'È IL PEZZO PIÙ VICINO A PARTIRE DA QUELLA SCALA. (DETERMINIAMO SE IL PEZZO SI TROVA AL PIANO SUP O INFERIORE)
+		}
+		
+		
+		if(distance!=0) { //DOPO AVER DETERMINATO IL PEZZO PIÙ VICINO PER CIASCUNA SCALA VEDIAMO QUAL È IL PEZZO PIÙ VICINO PER TUTTE LE SCALE. DOPO AVERLO INDIVIDUATO VEDIAMO SE È PIÙ VICINO DEL PEZZO SULLA NOSTRA STESSA RIGA.
+			for(Position p: availableStairs) {
+				if(p.getDestination().getPosX()!=50 && p.getTotalDistance()<distance) {
+					destination.setPosX(p.getDestination().getPosX());
+					destination.setPosY(p.getDestination().getPosY());
+					distance=p.getTotalDistance();
+				}
+			}
+		}
+		else {
+			int max=100;
+			for(Position p: availableStairs) {
+				if(p.getDestination().getPosX()!=50 && p.getTotalDistance()<max) {
+					destination.setPosX(p.getDestination().getPosX());
+					destination.setPosY(p.getDestination().getPosY());
+					max=p.getTotalDistance();
+				}
+			}
+			
+			if(max==100) {
+				for(Position p: availableStairs) {
+					if(p.getTotalDistance()<max) {
+						destination.setPosX(p.getDestination().getPosX());
+						destination.setPosY(p.getDestination().getPosY());
+						max=p.getTotalDistance();
+					}
+				}
+			}
+		}
+		
+		findPath(); //DOPO AVER DETERMINATO LA DESTINAZIONE CALCOLIAMO IL PERCORSO PER RAGGIUNGERLA
+		
+		
+		
+		
+		
+//		if(destination.getPosX()==player.getPosX() && destination.getPosY()==player.getPosY()) {
+//			ArrayList<PieceOfComponent> destinations=new ArrayList<PieceOfComponent>();
+//			for(BurgerComponent b: burgerComponents) {
+//				for(PieceOfComponent piece: b.getPieces()) {
+//					if(piece.getPosX()-1 == player.getPosX() && !piece.getPressed()) {
+//						destinations.add(piece);
+//					}
 //				}
 //			}
-//		});
-		
+//			
+//			
+//			if(destinations.size()>0) {
+//				int max=20;
+//				for(PieceOfComponent piece: destinations) {
+//					if(player.getPosY()>piece.getPosY() && player.getPosY()-piece.getPosY()<max) {
+//						destination.setPosX(piece.getPosX());
+//						destination.setPosY(piece.getPosY());
+//						max=player.getPosY()-piece.getPosY();
+//					}
+//					else if(player.getPosY()<piece.getPosY()&& piece.getPosY()-player.getPosY()<max) {
+//						destination.setPosX(piece.getPosX());
+//						destination.setPosY(piece.getPosY());
+//						max=piece.getPosY()-player.getPosY();
+//					}
+//				}
+//				
+//				destination.setPosX(destination.getPosX()-1);
+//				System.out.println(destination.getPosX()+" "+destination.getPosY());
+//			}
+//
+//		}
 	}
+	
+	
+
+	
+	
+
 	
 	
 	/////////////////////////////////
@@ -569,22 +571,14 @@ public class GameView extends ViewManager implements IView {
 		buttons.add(restart);
 		final GameButton menù = new GameButton("MENÙ");
 		
-//		menù.setOnAction(new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent event) {
-//				playSudoku(medium);
-//			}
-//		});
+		menù.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
+				hiddenStage.show();
+				mainStage.close();
+			}
+		});
 		
 		buttons.add(menù);
-//		final GameButton hard = new GameButton("HARD");
-//		hard.setDifficulty(DIFFICULTY.HARD);
-//		hard.setDifficultyStyle();
-//		hard.setOnAction(new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent event) {
-//				playSudoku(hard);
-//			}
-//		});
-//		buttons.add(hard);
 
 		endGameSubScene.addButtons(buttons);
 

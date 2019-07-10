@@ -15,6 +15,7 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.stage.Stage;
 import logic.GameManager;
+import logic.model.Map;
 
 public class MenuView extends ViewManager implements IView{
 
@@ -22,6 +23,7 @@ public class MenuView extends ViewManager implements IView{
 	private static final int MENU_BUTTON_Y = 150;
 
 	private ArrayList<GameButton> menuButtons;
+	private GameView game;
 	
 	public MenuView() {
 		super();
@@ -87,7 +89,7 @@ public class MenuView extends ViewManager implements IView{
 	}
 	
 	private void playGame() {
-		GameView game = new GameView();
+		game = new GameView();
 		game.hideStage(mainStage);
 	}
 
@@ -101,5 +103,6 @@ public class MenuView extends ViewManager implements IView{
 		
 		
 	}
+
 
 }

@@ -1,12 +1,21 @@
 package logic.model;
 
+import it.unical.mat.embasp.languages.Id;
+import it.unical.mat.embasp.languages.Param;
+
+@Id("pieceOfComponent")
 public class PieceOfComponent {
 
+	@Param(0)
 	private int posX;
+	@Param(1)
 	private int posY;
 	private Map map;
 	private boolean pressed;
 	
+	public PieceOfComponent() {
+		
+	}
 	public PieceOfComponent(int x,int y,Map m) {
 		posX=x;
 		posY=y;

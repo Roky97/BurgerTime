@@ -1,8 +1,12 @@
 package gui.application;
 	
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import logic.GameManager;
+
+import java.util.Scanner;
+
 import gui.view.IView;
 import gui.view.MenuView;
 
@@ -16,6 +20,7 @@ public class App extends Application {
 			primaryStage = view.getStage();
 			primaryStage.show();
 			
+	
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

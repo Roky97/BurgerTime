@@ -1,12 +1,20 @@
 package logic.model;
 
+import it.unical.mat.embasp.languages.Id;
+import it.unical.mat.embasp.languages.Param;
+
+@Id("player")
 public class Player {
+	@Param(0)
 	private int posX;
+	@Param(1)
 	private int posY;
 	private Map map;
 	
 	
-	
+	public Player() {
+		
+	}
 	public Player(Map m) {
 		map=m;
 	}

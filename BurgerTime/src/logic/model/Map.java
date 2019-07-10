@@ -61,7 +61,10 @@ public class Map {
 	}
 	
 	public char getMatrixValue(int i, int j) {
+		if(i<26 && i>=0 && j>=0 && j<21) {
 		return matrix[i][j];
+		}
+		return 'x';
 	}
 	
 	public void setMatrixValue(int i,int j,char v) {
@@ -150,6 +153,35 @@ public class Map {
 		}
 		
 		return burgerComponents;
+	}
+	
+	
+	public ArrayList<Cell> getAccessibleCell(){
+		ArrayList<Cell> cells=new ArrayList<Cell>();
+		
+		for(int i =0;i<21;i++) {
+			for(int j=0;j<21;j++) {
+				if(matrix[i][j]=='0'|| matrix[i][j]=='|') {
+					cells.add(new Cell(i,j));
+				}
+			}
+		}
+		
+		return cells;
+	}
+	
+	public ArrayList<Position> getStairsPositions(){
+		ArrayList<Position> stairsPos=new ArrayList<Position>();
+		
+		for(int i =0;i<21;i++) {
+			for(int j=0;j<21;j++) {
+				if( matrix[i][j]=='|') {
+					stairsPos.add(new Position(i,j,this));
+				}
+			}
+		}
+		
+		return stairsPos;
 	}
 	
 	@Override

@@ -1,0 +1,20 @@
+
+path(X,Y)|nonpath(X,Y):- cell(X,Y).
+
+raggiunge(Z,C):- player(Z,T), path(Z,C), C=T+1.
+raggiunge(Z,C):- player(Z,T), path(Z,C), C=T-1.
+raggiunge(R,T):- player(Z,T), path(R,T), R=Z+1.
+raggiunge(R,T):- player(Z,T), path(R,T), R=Z-1.
+
+raggiunge(X,Y):- raggiunge(X,Y1), path(X,Y),Y=Y1+1.
+raggiunge(X,Y):- raggiunge(X,Y1), path(X,Y),Y=Y1-1.
+raggiunge(X,Y):- raggiunge(X1,Y), path(X,Y),X=X1+1.
+raggiunge(X,Y):- raggiunge(X1,Y), path(X,Y),X=X1-1.
+
+percorse(X,Y):-path(X,Y).
+
+:- not raggiunge(X,Y), pieceOfComponent(X,Y).
+:- player(X,Y), not percorse(X,Y).
+:- pieceOfComponent(X,Y), not percorse(X,Y).
+
+:~ path(X,Y). [1@1, X,Y]
