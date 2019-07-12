@@ -3,8 +3,6 @@ package logic.ai;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
-
 import it.unical.mat.embasp.base.Handler;
 import it.unical.mat.embasp.base.InputProgram;
 import it.unical.mat.embasp.base.Output;
@@ -14,25 +12,24 @@ import it.unical.mat.embasp.languages.asp.AnswerSets;
 import it.unical.mat.embasp.platforms.desktop.DesktopHandler;
 import it.unical.mat.embasp.specializations.dlv2.desktop.DLV2DesktopService;
 import logic.model.Cell;
+import logic.model.Enemy;
 import logic.model.Map;
 import logic.model.PieceOfComponent;
 import logic.model.Player;
 
-public class PathGenerator {
+public class AlternativePathGenerator {
 	
-
-	private static String encodingResource = "encodings/findPath";
+	private static String encodingResource = "encodings/findAlternativePath";
 	private static Handler handler;
 	
 	private Map map;
 	private ArrayList<Cell> cells;
 	private PieceOfComponent piece;
+	private Enemy enemy;
 	private Player player;
 	private InputProgram facts;
 	
-	public PathGenerator(Map m) {
-		
-		
+	public AlternativePathGenerator(Map m) {
 		setCell(m);
 	}
 	
@@ -41,9 +38,10 @@ public class PathGenerator {
 		cells=map.getAccessibleCell();	
 	}
 	
-	public void setFacts(Player p, PieceOfComponent piece) {
+	public void setFacts(Player p, PieceOfComponent piece,Enemy e) {
 		player=p;
 		this.piece=piece;
+		enemy=e;
 	}
 	
 	public ArrayList<Path> findSolution(){
@@ -81,6 +79,16 @@ public class PathGenerator {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		//AGGIUNGO IL NEMICO AI FATTI
+		try {
+			facts.addObjectInput(new Enemy(enemy.getPosX(),enemy.getPosY(),map));
+//			System.out.println("enemy("+enemy.getPosX()+","+enemy.getPosY()+").");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		
 		Random rand = new Random(); 
 		int value = rand.nextInt(100)+50;
@@ -126,7 +134,7 @@ public class PathGenerator {
 			}
 		}
 		
-		
+//		
 //		System.out.println("Percorso per raggiungere la destinazione:");
 //		for(Path p : pathToDo) {
 //			System.out.println(p.getRow()+" "+p.getColumn());
@@ -163,11 +171,4 @@ public class PathGenerator {
 		return sorted;
 		
 	}
-		
-	
-	
-	
-	
-	
-
 }

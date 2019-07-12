@@ -176,6 +176,24 @@ public class Map {
 		return cells;
 	}
 	
+	
+	public Cell getRandomAccessibleCell() {
+		
+		ArrayList<Cell> cells=new ArrayList<Cell>();
+		
+		for(int i =0;i<21;i++) {
+			for(int j=0;j<21;j++) {
+				if(matrix[i][j]=='0'|| matrix[i][j]=='|') {
+					cells.add(new Cell(i,j));
+				}
+			}
+		}
+		
+		int randIndex=(int) (Math.random() * cells.size());
+		
+		return cells.get(randIndex);
+	}
+	
 	public ArrayList<Position> getStairsPositions(){
 		ArrayList<Position> stairsPos=new ArrayList<Position>();
 		

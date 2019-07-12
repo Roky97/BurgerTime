@@ -21,10 +21,13 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import logic.GameManager;
+import logic.ai.AlternativePathGenerator;
 import logic.ai.Path;
 import logic.ai.PathGenerator;
 import logic.model.BurgerComponent;
+import logic.model.Cell;
 import logic.model.Enemy;
+import logic.model.EnemySupport;
 import logic.model.Map;
 import logic.model.PieceOfComponent;
 import logic.model.Player;
@@ -46,10 +49,13 @@ public class GameView extends ViewManager implements IView {
 	private ArrayList<ImageView> lifesImage;
 	private ImageView chefImage;
 	private HashMap<ImageView,PieceOfComponent> pieces;
+	private HashMap<ImageView,Enemy> enemiesImage;
 	
 	private GameManager manager;
 	private Player player;
+	private Cell precPosition;
 	private ArrayList<Enemy> enemies;
+	private ArrayList<EnemySupport> enemySupports;
 	private Map map;
 	private ArrayList<BurgerComponent> burgerComponents;
 	private ArrayList<Position> stairsPositions;
@@ -82,6 +88,7 @@ public class GameView extends ViewManager implements IView {
 		burgerComponents=map.getBurgerComponents();
 		path=new ArrayList<Path>();
 		stairsPositions=map.getStairsPositions();
+		precPosition=new Cell();
 		
 		
 
@@ -89,10 +96,14 @@ public class GameView extends ViewManager implements IView {
 
 		lifesImage = new ArrayList<ImageView>();
 		pieces = new HashMap<>();
+		enemiesImage=new HashMap<>();
+		enemySupports=new ArrayList<EnemySupport>();
+		
 		
 		createBackground();
 		loadElements();
 		setPlayer();
+		setEnemies();
 		drawLifes();
 		
 		createSubScenes();
@@ -116,9 +127,22 @@ public class GameView extends ViewManager implements IView {
 
             		
             		if(destination.getPosX()==player.getPosX() && destination.getPosY()==player.getPosY()) { //SE LA POS DEL PLAYER È UGUALE ALLA DESTINAZIONE DA RAGGIUNGERE, CALCOLIAMO UN'ALTRA DESTINAZIONE
-            			findNextDestination(player.getPosX(),player.getPosY()); 			
+            			findNextDestination(player.getPosX(),player.getPosY());
+            			findPath();
             		}
+            		
+            		
+            		checkEnemiesOnPlayerPath();
             		movePlayer();
+            		checkCollision();
+            		findEnemyPath();
+            		moveEnemies();
+            		checkCollision();
+            		
+            		
+            		
+            		
+            		
         			checkVictory();
 	            	lastUpdate=now;
             	}
@@ -130,6 +154,185 @@ public class GameView extends ViewManager implements IView {
 		moveTimer.start();
 	}
 	
+	
+	
+	public void checkCollision() {
+		for(Enemy e: enemies) {
+			if(e.getPosX()==player.getPosX() && e.getPosY()==player.getPosY()) {
+				endGame();
+				return;
+			}
+		}
+	}
+	
+	public void endGame() {
+		moveTimer.stop();
+		endGameSubScene.setLabel("GAME OVER");
+		endGameSubScene.getLabel().setStyle("-fx-text-fill : Gold;");
+		endGameSubScene.moveSubScene();	
+	}
+	
+	
+	////////////////////////////
+	// RESTART NELLA SUBSCENE //
+	////////////////////////////
+	
+	
+	////////////////////////
+	// FAI MORIRE ENEMIES //
+	////////////////////////
+	
+	//////////////////////////////////////////////////////////
+	// CHECK SE ENEMIES È NEL PATH DEL PLAYER E CAMBIA PATH //
+	//////////////////////////////////////////////////////////
+	
+	
+	
+	private void checkEnemiesOnPlayerPath() {
+		
+
+
+		if(path.size()>0) {
+			for(int i=0;i<path.size();i++) {
+				
+				for(Enemy e:enemies) {
+					if(path.get(i).getRow()==e.getPosX() && path.get(i).getColumn()==e.getPosY() && i<5) {
+						System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
+						System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
+						System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
+						findAlternativePath(e);
+						return;
+					}
+				}
+				
+				
+				if(path.size()<5) {
+					for(Enemy e:enemies) {
+						if(Math.abs(e.getPosX()-destination.getPosX())<3 && e.getPosY()==destination.getPosY()) {
+							if(path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY()) {
+								path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
+								movePlayer();
+								findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+							}
+							else {
+								findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
+							}
+						}
+						else if(e.getPosX()==destination.getPosX() && Math.abs(e.getPosY()-destination.getPosY())<3) {
+							if(path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY()) {
+								path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
+								movePlayer();
+								findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+							}
+							else {
+								findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
+							}
+						}
+//						else if(e.getPosX()==destination.getPosX() && e.getPosY()-2==destination.getPosY()) {
+//							if(path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY()) {
+//								path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
+//								movePlayer();
+//								findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+//							}
+//							else {
+//								findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
+//							}
+//						}
+//						else if(e.getPosX()-2==destination.getPosX() && e.getPosY()==destination.getPosY()) {
+//							if(path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY()) {
+//								path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
+//								movePlayer();
+//								findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+//							}
+//							else {
+//								findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
+//							}
+//						}
+					}
+				}
+			}
+		}
+
+	}
+			
+			
+			
+//			
+//			for(Enemy e:enemies) {
+//				
+//				if(path.size()==3 && e.getPosY()+1==path.get(0).getColumn() && ) {
+//					
+//					findNextDestination(player.getPosX(),player.getPosY());
+//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
+//					System.out.println"player: "+ player.getPosX() + " " + player.getPosY());
+//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
+//					findAlternativePath(e);
+//				}
+//				else if(path.size()==3 && e.getPosY()-1==path.get(0).getColumn()) {
+//					
+//					findNextDestination(player.getPosX(),player.getPosY());
+//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
+//					System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
+//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
+//					findAlternativePath(e);
+//				}
+//			}
+			
+			
+//		private void checkIfEnemiesNearDestination() {
+//			
+//			boolean enemyOnPath=false;
+//			for(Path p : path) {
+//				
+//				for(Enemy e: enemies) {
+//					if(p.getRow()==e.getPosX() && p.getColumn()==e.getPosY()) {
+//						enemyon
+//					}
+//				}
+//			}
+//			if(path.size==2 && )
+//				
+//				
+//		}
+		
+//		else if(path.size()==1) {
+//			for(Enemy e:enemies) {
+//				if(path.get(0).getRow()==e.getPosX() && path.get(0).getColumn()==e.getPosY()-1) {
+//					
+//					findNextDestination(player.getPosX(),player.getPosY());
+//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
+//					System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
+//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
+//					findAlternativePath(e);
+//				}
+//				else if(path.get(0).getRow()==e.getPosX() && path.get(0).getColumn()==e.getPosY()+1) {
+//					
+//					findNextDestination(player.getPosX(),player.getPosY());
+//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
+//					System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
+//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
+//					findAlternativePath(e);
+//				}
+//				else if(path.get(0).getRow()==e.getPosX()+1 && path.get(0).getColumn()==e.getPosY()) {
+//					
+//					findNextDestination(player.getPosX(),player.getPosY());
+//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
+//					System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
+//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
+//					findAlternativePath(e);
+//				}
+//				else if(path.get(0).getRow()==e.getPosX()-1 && path.get(0).getColumn()==e.getPosY()) {
+//					
+//					findNextDestination(player.getPosX(),player.getPosY());
+//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
+//					System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
+//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
+//					findAlternativePath(e);
+//				}
+//			}
+//		}
+	
+	
 	private void findPath() {		
 		if(destination.getPosX()!=player.getPosX() || destination.getPosY()!=player.getPosY() ) {
 			PathGenerator pathGenerator=new PathGenerator(map);
@@ -138,10 +341,44 @@ public class GameView extends ViewManager implements IView {
 		}
 	}
 	
+	private void findAlternativePath(Enemy e) {
+		AlternativePathGenerator alternativePathGen= new AlternativePathGenerator(map);
+		alternativePathGen.setFacts(player, destination, e);
+		path=alternativePathGen.findSolution();
+	}
+	
+	private void findEnemyPath() {
+		for(EnemySupport es: enemySupports) {
+			if(es.getPath().size()==0) {
+				
+				int rand=(int) (Math.random() * 10);
+				
+				
+				int destX;
+				int destY;
+				
+				if(rand>7 && rand<10) {
+					destX=player.getPosX();
+					destY=player.getPosY();
+				}
+				else {
+					Cell temp=map.getRandomAccessibleCell();
+					destX=temp.getRow();
+					destY=temp.getColumn();
+				}
+				
+				PathGenerator pathGenerator=new PathGenerator(map);
+				pathGenerator.setFacts(new Player(es.getEnemy().getPosX(),es.getEnemy().getPosY(),map), new PieceOfComponent(destX,destY,map));
+				es.setPath(pathGenerator.findSolution());
+			}
+		}
+	}
+	
 	private void movePlayer() {
 			
 		if(path.size()>0) {
-
+			precPosition.setRow(player.getPosX());
+			precPosition.setColumn(player.getPosY());
 			Path nextPos=path.get(0);
 			path.remove(0);
 
@@ -180,6 +417,57 @@ public class GameView extends ViewManager implements IView {
 		}
 		
 		
+	}
+	
+	private void moveEnemies() {
+		
+		for(EnemySupport es: enemySupports) {
+			if(es.getPath().size()>0) {
+				
+				Path nextPos=es.getPath().get(0);
+				es.getPath().remove(0);
+				ImageView temp=new ImageView();
+				
+				for (Entry<ImageView, Enemy> entry : enemiesImage.entrySet()) { 
+					if((entry.getValue().getPosX()==es.getEnemy().getPosX() && entry.getValue().getPosY()==es.getEnemy().getPosY()))
+				     {					 
+						temp=entry.getKey();
+						
+				     }
+				}
+				
+				if(nextPos.getRow()>es.getEnemy().getPosX() && nextPos.getColumn()==es.getEnemy().getPosY()) {
+					if(es.getEnemy().moveDown()) {
+						while(((temp.getY()-65)/imageSizeY)!=es.getEnemy().getPosX()) {	
+							temp.setY(temp.getY() + 1);
+						}	
+					}
+				}
+				else if(nextPos.getRow()<es.getEnemy().getPosX() && nextPos.getColumn()==es.getEnemy().getPosY()) {
+					if(es.getEnemy().moveUp()) {
+						while(((temp.getY()-65)/imageSizeY)!=es.getEnemy().getPosX()) {
+							temp.setY(temp.getY() - 1);
+						}	
+					}
+				}
+				else if(nextPos.getRow()==es.getEnemy().getPosX() && nextPos.getColumn()>es.getEnemy().getPosY()) {
+					
+					if(es.getEnemy().moveRight()) {
+						while((temp.getX()/imageSizeX)!=es.getEnemy().getPosY()) {
+							temp.setX(temp.getX() + 1);
+						}	
+					}
+				}
+				else if(nextPos.getRow()==es.getEnemy().getPosX() && nextPos.getColumn()<es.getEnemy().getPosY()) {
+		
+					if(es.getEnemy().moveLeft()) {	
+						while((temp.getX()/imageSizeX)!=es.getEnemy().getPosY()) {
+							temp.setX(temp.getX() - 1);
+						}		
+					}
+				}	
+			}
+		}
 	}
 	
 	
@@ -238,7 +526,10 @@ public class GameView extends ViewManager implements IView {
 								for(int i=0;i<componentImages.size();i++) {
 									componentImages.get(i).setY(componentImages.get(i).getY()+0.5);
 								}
-							
+								
+							/////////////////////////
+							//GESTISCI MORTEEEEEEEE//
+							/////////////////////////
 							}
 						}
 					}
@@ -391,43 +682,6 @@ public class GameView extends ViewManager implements IView {
 			}
 		}
 		
-		findPath(); //DOPO AVER DETERMINATO LA DESTINAZIONE CALCOLIAMO IL PERCORSO PER RAGGIUNGERLA
-		
-		
-		
-		
-		
-//		if(destination.getPosX()==player.getPosX() && destination.getPosY()==player.getPosY()) {
-//			ArrayList<PieceOfComponent> destinations=new ArrayList<PieceOfComponent>();
-//			for(BurgerComponent b: burgerComponents) {
-//				for(PieceOfComponent piece: b.getPieces()) {
-//					if(piece.getPosX()-1 == player.getPosX() && !piece.getPressed()) {
-//						destinations.add(piece);
-//					}
-//				}
-//			}
-//			
-//			
-//			if(destinations.size()>0) {
-//				int max=20;
-//				for(PieceOfComponent piece: destinations) {
-//					if(player.getPosY()>piece.getPosY() && player.getPosY()-piece.getPosY()<max) {
-//						destination.setPosX(piece.getPosX());
-//						destination.setPosY(piece.getPosY());
-//						max=player.getPosY()-piece.getPosY();
-//					}
-//					else if(player.getPosY()<piece.getPosY()&& piece.getPosY()-player.getPosY()<max) {
-//						destination.setPosX(piece.getPosX());
-//						destination.setPosY(piece.getPosY());
-//						max=piece.getPosY()-player.getPosY();
-//					}
-//				}
-//				
-//				destination.setPosX(destination.getPosX()-1);
-//				System.out.println(destination.getPosX()+" "+destination.getPosY());
-//			}
-//
-//		}
 	}
 	
 	
@@ -453,7 +707,16 @@ public class GameView extends ViewManager implements IView {
 	}
 	
 	private void setEnemies() {
-		
+		for(Enemy e : enemies) {
+			EnemySupport tempSup=new EnemySupport();
+			tempSup.setEnemy(e);
+			enemySupports.add(tempSup);
+			ImageView temp= new ImageView(e.getType().getUrl()+".png");
+			temp.setX((e.getPosY()*imageSizeX) - (imageSizeX/2));
+			temp.setY((e.getPosX()*imageSizeY)+65);
+			pane.getChildren().add(temp);
+			enemiesImage.put(temp, e);
+		}
 	}
 
 	private void loadElements() {
@@ -565,8 +828,8 @@ public class GameView extends ViewManager implements IView {
 	
 	public void createSubScenes() {
 		endGameSubScene = new GameSubScene();
-		endGameSubScene.setLabel("YOU WIN");
-		endGameSubScene.getLabel().setStyle("-fx-text-fill : Gold;");
+		
+		
 
 		ArrayList<GameButton> buttons = new ArrayList<GameButton>();
 		final GameButton restart = new GameButton("RESTART");
