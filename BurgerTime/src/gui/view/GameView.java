@@ -160,7 +160,7 @@ public class GameView extends ViewManager implements IView {
 		for(Enemy e: enemies) {
 			if(e.getPosX()==player.getPosX() && e.getPosY()==player.getPosY()) {
 				manager.removeLife();
-				
+				System.out.println("Vite: " + manager.getLifes());
 				if(manager.getLifes() == 0)
 					endGame();
 				restartLevel();
@@ -177,12 +177,12 @@ public class GameView extends ViewManager implements IView {
 	}
 	
 	public void restartLevel() {
-		try {
-			moveTimer.wait(1);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			moveTimer.wait(1);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		for(Enemy e: enemies) {
 			e.resetPosition();
