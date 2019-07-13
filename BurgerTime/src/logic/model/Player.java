@@ -10,7 +10,8 @@ public class Player {
 	@Param(1)
 	private int posY;
 	private Map map;
-	
+	private int initalPosX;
+	private int initalPosY;
 	
 	public Player() {
 		
@@ -20,6 +21,8 @@ public class Player {
 	}
 	
 	public Player(int x, int y,Map m) {
+		initalPosX = x;
+		initalPosY = y;
 		posX = x;
 		posY = y;
 		map= m;
@@ -27,6 +30,11 @@ public class Player {
 	
 	public int getPosX() {
 		return posX;
+	}
+	
+	public void resetPosition() {
+		this.posX = initalPosX;
+		this.posY = initalPosY;
 	}
 	
 	public void setPosX(int newPosX) {

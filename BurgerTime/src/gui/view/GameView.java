@@ -159,7 +159,11 @@ public class GameView extends ViewManager implements IView {
 	public void checkCollision() {
 		for(Enemy e: enemies) {
 			if(e.getPosX()==player.getPosX() && e.getPosY()==player.getPosY()) {
-				endGame();
+				manager.removeLife();
+				
+				if(manager.getLifes() == 0)
+					endGame();
+				restartLevel();
 				return;
 			}
 		}
@@ -170,6 +174,23 @@ public class GameView extends ViewManager implements IView {
 		endGameSubScene.setLabel("GAME OVER");
 		endGameSubScene.getLabel().setStyle("-fx-text-fill : Gold;");
 		endGameSubScene.moveSubScene();	
+	}
+	
+	public void restartLevel() {
+		try {
+			moveTimer.wait(1);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		for(Enemy e: enemies) {
+			e.resetPosition();
+		}
+		
+		player.resetPosition();
+		
+		
 	}
 	
 	
@@ -720,8 +741,6 @@ public class GameView extends ViewManager implements IView {
 	}
 
 	private void loadElements() {
-
-		
 		
 		for(BurgerComponent bc : burgerComponents) {
 			for(int i = 0; i< bc.getPieces().size(); i++) {

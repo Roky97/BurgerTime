@@ -72,7 +72,11 @@ public class GameManager {
 	public int getLifes() {
 		return lifes;
 	}
-
+	
+	public void removeLife() {
+		this.lifes--;
+	}
+	
 	public void setLifes(int lifes) {
 		this.lifes = lifes;
 	}
