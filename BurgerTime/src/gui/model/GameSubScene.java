@@ -60,7 +60,7 @@ public class GameSubScene extends SubScene{
 		transition.setNode(this);
 		if(isHidden)
 		{
-			transition.setToX(-676);
+			transition.setToX(-950);
 			isHidden = false;
 		}
 		else
