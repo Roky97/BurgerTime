@@ -190,6 +190,10 @@ public class GameView extends ViewManager implements IView {
 		
 		player.resetPosition();
 		
+		moveTimer.stop();
+		
+		moveTimer.start();
+		
 		
 	}
 	
