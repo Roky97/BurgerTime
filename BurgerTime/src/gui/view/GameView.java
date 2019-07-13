@@ -159,11 +159,11 @@ public class GameView extends ViewManager implements IView {
 	public void checkCollision() {
 		for(Enemy e: enemies) {
 			if(e.getPosX()==player.getPosX() && e.getPosY()==player.getPosY()) {
-				manager.removeLife();
-				System.out.println("Vite: " + manager.getLifes());
-				if(manager.getLifes() == 0)
+//				manager.removeLife();
+//				System.out.println("Vite: " + manager.getLifes());
+//				if(manager.getLifes() == 0)
 					endGame();
-				restartLevel();
+//				restartLevel();
 				return;
 			}
 		}
