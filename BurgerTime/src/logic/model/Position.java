@@ -1,5 +1,7 @@
 package logic.model;
 
+import java.util.ArrayList;
+
 public class Position {
 
 	private int posX; //POSIZIONE SCALA X,Y
@@ -15,6 +17,7 @@ public class Position {
 	
 	private PieceOfComponent dest; //DESTINAZIONE PIÙ VICINA DA RAGGIUNGERE A PARTIRE DALLA SCALA X,Y CALCOLATA IN BASE ALLE DISTANZE SOPRA CITATE
 	private int totalDistance;  //DISTANZA TOTALE TRA PLAYER E DEST
+	private ArrayList<BurgerComponent> components;
 	
 	public Position() {
 		
@@ -31,6 +34,9 @@ public class Position {
 		downFloor=50;
 	}
 	
+	public void setComponents(ArrayList<BurgerComponent> components) {
+		this.components=components;
+	}
 	public int getPosX() {
 		return posX;
 	}
@@ -60,7 +66,7 @@ public class Position {
 			
 			if( map.getMatrixValue(i, posY+1)=='0'  || map.getMatrixValue(i, posY-1)=='0'){
 				upFloor=i;
-				System.out.println("upfloorbitch: " + upFloor);
+				
 				break;
 			}
 		}
@@ -71,7 +77,7 @@ public class Position {
 		for(int i=posX+1;i<21;i++) {
 			if(map.getMatrixValue(i, posY+1)=='0' || map.getMatrixValue(i, posY-1)=='0') {
 				downFloor=i;
-				System.out.println("downfloorbitch: " + downFloor);
+				
 				break;
 			}
 		}	
@@ -127,7 +133,12 @@ public class Position {
 		}
 		else if(distanceUpFloorUpPiece==0 && distanceDownFloorDownPiece==0) {
 			
-			if(posX-upFloor < downFloor-posX) {
+			if(upFloor==50) {
+				dest.setPosX(downFloor);
+				dest.setPosY(posY);
+				totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);		
+			}
+			else if(posX-upFloor < downFloor-posX) {
 				dest.setPosX(upFloor);
 				dest.setPosY(posY);
 				totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
@@ -141,9 +152,24 @@ public class Position {
 //				 int rand=(int) (Math.random() * 100);
 //				 
 //				 if(rand%2==0) {
-						dest.setPosX(upFloor);
-						dest.setPosY(posY);
-						totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
+						boolean somethingUpstairs=false;
+						for(BurgerComponent b:components) {
+							for(PieceOfComponent p: b.getPieces()) {
+								if(p.getPosX()<=upFloor) {
+									somethingUpstairs=true;
+								}
+							}
+						}
+						if(somethingUpstairs) {
+							dest.setPosX(upFloor);
+							dest.setPosY(posY);
+							totalDistance=distanceFromPlayer+(posX-upFloor);
+						}else {
+							dest.setPosX(downFloor);
+							dest.setPosY(posY);
+							totalDistance=distanceFromPlayer+(downFloor-posX);
+						}
+						
 //				 }
 //				 else {
 //						dest.setPosX(downFloor);

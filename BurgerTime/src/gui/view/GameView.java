@@ -196,25 +196,25 @@ public class GameView extends ViewManager implements IView {
 			for(int i=0;i<path.size();i++) {
 				
 				for(Enemy e:enemies) {
-					if(path.get(i).getRow()==e.getPosX() && path.get(i).getColumn()==e.getPosY() && i<5) {
-						System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
-						System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
-						System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
+					if(path.get(i).getRow()==e.getPosX() && path.get(i).getColumn()==e.getPosY() && i<5) {					
+						findAlternativeDestination(player.getPosX(), player.getPosY());
 						findAlternativePath(e);
 						return;
 					}
 				}
 				
 				
-				if(path.size()<5) {
+				if(path.size()<7) {
 					for(Enemy e:enemies) {
-						if(Math.abs(e.getPosX()-destination.getPosX())<3 && e.getPosY()==destination.getPosY()) {
+						if(Math.abs(e.getPosX()-destination.getPosX())<4 && e.getPosY()==destination.getPosY()) {
 							if(path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY()) {
 								path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
 								movePlayer();
+								findAlternativeDestination(player.getPosX(), player.getPosY());
 								findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
 							}
 							else {
+								findAlternativeDestination(player.getPosX(), player.getPosY());
 								findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
 							}
 						}
@@ -222,9 +222,11 @@ public class GameView extends ViewManager implements IView {
 							if(path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY()) {
 								path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
 								movePlayer();
+								findAlternativeDestination(player.getPosX(), player.getPosY());
 								findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
 							}
 							else {
+								findAlternativeDestination(player.getPosX(), player.getPosY());
 								findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
 							}
 						}
@@ -254,83 +256,168 @@ public class GameView extends ViewManager implements IView {
 		}
 
 	}
-			
-			
-			
-//			
-//			for(Enemy e:enemies) {
-//				
-//				if(path.size()==3 && e.getPosY()+1==path.get(0).getColumn() && ) {
-//					
-//					findNextDestination(player.getPosX(),player.getPosY());
-//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
-//					System.out.println"player: "+ player.getPosX() + " " + player.getPosY());
-//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
-//					findAlternativePath(e);
-//				}
-//				else if(path.size()==3 && e.getPosY()-1==path.get(0).getColumn()) {
-//					
-//					findNextDestination(player.getPosX(),player.getPosY());
-//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
-//					System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
-//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
-//					findAlternativePath(e);
+	
+	private int findAlternativeComponentInSameRow(int row,int col,PieceOfComponent dest) {
+		
+//		BurgerComponent temp=new BurgerComponent(map);
+//		
+//		for(BurgerComponent bc: burgerComponents) {
+//			for(PieceOfComponent p: bc.getPieces()) {
+//				if(p.getPosX() == destination.getPosX()+1 && p.getPosY()==destination.getPosY()) {
+//					temp=bc;
 //				}
 //			}
-			
-			
-//		private void checkIfEnemiesNearDestination() {
-//			
-//			boolean enemyOnPath=false;
-//			for(Path p : path) {
-//				
-//				for(Enemy e: enemies) {
-//					if(p.getRow()==e.getPosX() && p.getColumn()==e.getPosY()) {
-//						enemyon
-//					}
-//				}
-//			}
-//			if(path.size==2 && )
-//				
-//				
 //		}
 		
-//		else if(path.size()==1) {
-//			for(Enemy e:enemies) {
-//				if(path.get(0).getRow()==e.getPosX() && path.get(0).getColumn()==e.getPosY()-1) {
-//					
-//					findNextDestination(player.getPosX(),player.getPosY());
-//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
-//					System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
-//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
-//					findAlternativePath(e);
-//				}
-//				else if(path.get(0).getRow()==e.getPosX() && path.get(0).getColumn()==e.getPosY()+1) {
-//					
-//					findNextDestination(player.getPosX(),player.getPosY());
-//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
-//					System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
-//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
-//					findAlternativePath(e);
-//				}
-//				else if(path.get(0).getRow()==e.getPosX()+1 && path.get(0).getColumn()==e.getPosY()) {
-//					
-//					findNextDestination(player.getPosX(),player.getPosY());
-//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
-//					System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
-//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
-//					findAlternativePath(e);
-//				}
-//				else if(path.get(0).getRow()==e.getPosX()-1 && path.get(0).getColumn()==e.getPosY()) {
-//					
-//					findNextDestination(player.getPosX(),player.getPosY());
-//					System.out.println("ooooooooooooooooooooooooooooooooooooooooooooooooo");
-//					System.out.println("player: "+ player.getPosX() + " " + player.getPosY());
-//					System.out.println("enemy: "+ e.getPosX() + " " + e.getPosY());
-//					findAlternativePath(e);
-//				}
-//			}
-//		}
+		
+		ArrayList<PieceOfComponent> destinations=new ArrayList<PieceOfComponent>();
+		for(BurgerComponent b: burgerComponents) {
+		   {
+				for(PieceOfComponent piece: b.getPieces()) {
+					if(piece.getPosX()-1 == row && !piece.getPressed() && (piece.getPosX()-1!=destination.getPosX() && piece.getPosY()!=destination.getPosY()) && !sameComponent(piece,destination)) {
+						destinations.add(piece);
+					}
+				}
+			}
+		}
+		
+		int max=20;
+		if(destinations.size()>0) {
+			
+			for(PieceOfComponent piece: destinations) {
+				if(col>piece.getPosY() && col-piece.getPosY()<max) {
+					dest.setPosX(piece.getPosX());
+					dest.setPosY(piece.getPosY());
+					max=col-piece.getPosY();
+				}
+				else if(col<piece.getPosY()&& piece.getPosY()-col<max) {
+					dest.setPosX(piece.getPosX());
+					dest.setPosY(piece.getPosY());
+					max=piece.getPosY()-col;
+				}
+			}
+			
+			dest.setPosX(dest.getPosX()-1);
+			
+			return max;
+		}
+		else {
+			return 0;
+		}
+	}
+	
+	
+	
+	private boolean sameComponent(PieceOfComponent piece,PieceOfComponent dest) {
+		
+		boolean first=false;
+		boolean second=false;
+		for(BurgerComponent b: burgerComponents) {
+			first=false;
+			second=false;
+			for(PieceOfComponent p: b.getPieces()) {
+				if(p.getPosX()==piece.getPosX() && p.getPosY()==piece.getPosY()) {
+					first=true;
+				}
+				if(p.getPosX()==dest.getPosX()-1 && p.getPosY()==dest.getPosY()) {
+					second=true;
+				}
+			}
+		}
+		
+		return first && second;
+	}
+	private void findAlternativeDestination(int row,int col) {
+		PieceOfComponent newDestination=new PieceOfComponent();
+		
+		int distance=findAlternativeComponentInSameRow(row, col,newDestination);  //TROVIAMO IL PEZZO DI COMPONENTE PIÙ VICINO SULLA STESSA RIGA PARTENDO DALLA POS DEL PLAYER
+		
+		
+		ArrayList<Position> availableStairs=new ArrayList<Position>(); //SUCCESSIVAMENTE CONSIDERIAMO TUTTE LE SCALE PIÙ VICINE DEL PEZZO DI COMP TROVATO NELLA RIGA PRECEDENTE
+		
+		if(distance!=0) { //SE DISTANCE È DIVERSO DA 0 VUOL DIRE CHE C'È UN PEZZO DI COMP SULLA STESSA RIGA E QUINDI PRENDIAMO LE SCALE CON DISTANZA INFERIORE A QUELLA DEL PEZZO.
+			for(Position p: stairsPositions) {
+				p.setComponents(burgerComponents);
+				if(p.getPosX()==row) {
+					
+					if(col>p.getPosY() && col-p.getPosY()<distance) {
+						p.setDistanceFromPlayer(col-p.getPosY());
+						availableStairs.add(p);
+					}
+					else if(col<p.getPosY()&& p.getPosY()-col<distance) {
+						p.setDistanceFromPlayer(p.getPosY()-col);
+						availableStairs.add(p);
+					}					
+				}
+			}
+		}
+		else {			//SE DISTANCE==0 NON VI È UN PEZZO DI COMP SULLA STESSA RIGA DEL PLAYER E QUINDI CONSIDERIAMO TUTTE LE SCALE SULLA STESSA RIGA DEL PLAYER
+			for(Position p: stairsPositions) {
+				p.setComponents(burgerComponents);
+				if(p.getPosX()==row) {
+					
+					
+					if(col>p.getPosY()) {
+						p.setDistanceFromPlayer(col-p.getPosY());
+					}
+					else if(col<p.getPosY()) {
+						p.setDistanceFromPlayer(p.getPosY()-col);
+					}
+					
+					availableStairs.add(p);
+				}
+			}	
+		}
+		
+		for(Position p: availableStairs) { 
+			p.findUpFloor(); //PER CIASCUNA SCALA TROVIAMO PIANO SUPERIORE E INFERIORE
+			System.out.println("ScalaX: "+ p.getPosX() + ", ScalaY: "+p.getPosY()+". UpFloor: "+ p.getUpFloor());
+			p.findDownFloor();
+			System.out.println("ScalaX: "+ p.getPosX() + ", ScalaY: "+p.getPosY()+". DownFloor: "+ p.getDownFloor());
+			
+			p.setDistanceUpFloorUpPiece(findAlternativeComponentInSameRow(p.getUpFloor(), p.getPosY(), p.getUpPiece())); //SETTIAMO LA DISTANZA DAL PIANO SUPERIORE DELLA SCALA AL PEZZO DI COMP PIÙ VICINO AD ESSO
+			p.setDistanceDownFloorDownPiece(findAlternativeComponentInSameRow(p.getDownFloor(), p.getPosY(), p.getDownPiece())); //SETTIAMO LA DISTANZA DAL PIANO INFERIORE DELLA SCALA AL PEZZO DI COMP PIÙ VICINO AD ESSO
+			p.findNearestPiece(); //CON QUESTA FUNZIONE DETERMINIAMO PER CIASCUNA SCALA QUAL'È IL PEZZO PIÙ VICINO A PARTIRE DA QUELLA SCALA. (DETERMINIAMO SE IL PEZZO SI TROVA AL PIANO SUP O INFERIORE)
+		}
+		
+		System.out.println("Previous Destination: " + destination.getPosX()+" "+destination.getPosY());
+		if(distance!=0) { //DOPO AVER DETERMINATO IL PEZZO PIÙ VICINO PER CIASCUNA SCALA VEDIAMO QUAL È IL PEZZO PIÙ VICINO PER TUTTE LE SCALE. DOPO AVERLO INDIVIDUATO VEDIAMO SE È PIÙ VICINO DEL PEZZO SULLA NOSTRA STESSA RIGA.
+			
+			destination.setPosX(newDestination.getPosX());
+			destination.setPosY(newDestination.getPosY());
+			for(Position p: availableStairs) {
+				if(p.getDestination().getPosX()!=50 && p.getTotalDistance()<distance) {
+					destination.setPosX(p.getDestination().getPosX());
+					destination.setPosY(p.getDestination().getPosY());
+					distance=p.getTotalDistance();
+				}
+			}
+		}
+		else {
+			int max=100;
+			for(Position p: availableStairs) {
+				if(p.getDestination().getPosX()!=50 && p.getTotalDistance()<max) {
+					destination.setPosX(p.getDestination().getPosX());
+					destination.setPosY(p.getDestination().getPosY());
+					max=p.getTotalDistance();
+				}
+			}
+			
+			if(max==100) {
+				for(Position p: availableStairs) {
+					if(p.getTotalDistance()<max) {
+						destination.setPosX(p.getDestination().getPosX());
+						destination.setPosY(p.getDestination().getPosY());
+						max=p.getTotalDistance();
+					}
+				}
+			}
+		}
+		
+		System.out.println("Next destination: " + destination.getPosX() + " " + destination.getPosY());
+		
+	}
+			
 	
 	
 	private void findPath() {		
@@ -612,6 +699,7 @@ public class GameView extends ViewManager implements IView {
 		
 		if(distance!=0) { //SE DISTANCE È DIVERSO DA 0 VUOL DIRE CHE C'È UN PEZZO DI COMP SULLA STESSA RIGA E QUINDI PRENDIAMO LE SCALE CON DISTANZA INFERIORE A QUELLA DEL PEZZO.
 			for(Position p: stairsPositions) {
+				p.setComponents(burgerComponents);
 				if(p.getPosX()==row) {
 					
 					if(col>p.getPosY() && col-p.getPosY()<distance) {
@@ -627,6 +715,7 @@ public class GameView extends ViewManager implements IView {
 		}
 		else {			//SE DISTANCE==0 NON VI È UN PEZZO DI COMP SULLA STESSA RIGA DEL PLAYER E QUINDI CONSIDERIAMO TUTTE LE SCALE SULLA STESSA RIGA DEL PLAYER
 			for(Position p: stairsPositions) {
+				p.setComponents(burgerComponents);
 				if(p.getPosX()==row) {
 					
 					if(col>p.getPosY()) {
