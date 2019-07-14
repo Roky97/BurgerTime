@@ -10,6 +10,8 @@ public class Enemy {
 	private int posX;
 	@Param(1)
 	private int posY;
+	private int initalPosX;
+	private int initalPosY;
 	private Map map;
 	TypeEnemy type;
 	
@@ -21,9 +23,24 @@ public class Enemy {
 	}
 	
 	public Enemy(int x, int y,Map m) {
+		initalPosX = x;
+		initalPosY = y;
 		posX = x;
 		posY = y;
 		map= m;
+	}
+	
+	public int getInitalPosX() {
+		return initalPosX;
+	}
+	
+	public int getInitalPosY() {
+		return initalPosY;
+	}
+	
+	public void resetPosition() {
+		this.posX = initalPosX;
+		this.posY = initalPosY;
 	}
 	
 	public void setType(TypeEnemy type) {
