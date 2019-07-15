@@ -189,7 +189,7 @@ public class Map {
 			}
 		}
 		
-		int randIndex=(int) (Math.random() * cells.size());
+		int randIndex=(int) (Math.random() * (cells.size()-1));
 		
 		return cells.get(randIndex);
 	}
