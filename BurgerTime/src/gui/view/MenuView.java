@@ -56,11 +56,11 @@ public class MenuView extends ViewManager implements IView{
 		playBtn.setOnAction(new EventHandler<ActionEvent>() {
 
 			public void handle(ActionEvent event) {
-				for (GameButton btn : menuButtons) {
-					if (btn != playBtn) {
-						btn.setDisable(!btn.isDisable());
-					}
-				}
+//				for (GameButton btn : menuButtons) {
+//					if (btn != playBtn) {
+//						btn.setDisable(!btn.isDisable());
+//					}
+//				}
 //				mainStage.close();
 				playGame();
 			}

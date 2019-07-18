@@ -15,7 +15,7 @@ public class ViewManager {
 	protected AnchorPane pane;
 	protected Scene scene;
 	
-	protected Stage hiddenStage;
+	public Stage hiddenStage;
 	
 	protected GameManager gameManager;
 	

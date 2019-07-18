@@ -973,12 +973,15 @@ public class GameView extends ViewManager implements IView {
 		ArrayList<GameButton> buttons = new ArrayList<GameButton>();
 		final GameButton restart = new GameButton("RESTART");
 		
-//		restart.setOnAction(new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent event) {
+		restart.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
 //				playSudoku(easy);
-//			}
-//
-//		});
+				GameView newGame = new GameView();
+				newGame.hiddenStage = hiddenStage;
+				mainStage.close();
+			}
+
+		});
 		buttons.add(restart);
 		final GameButton menù = new GameButton("MENÙ");
 		
