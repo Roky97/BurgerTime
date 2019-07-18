@@ -13,7 +13,7 @@ public class GameManager {
 	private ArrayList<Map> levels; //gamemanager?
 	private int totLevels = 1; //gamemanger
 	private int currLevel = 1; //gamemanger
-	private int lifes = 2; //gamemanger
+	private int lifes = 4; //gamemanger
 	
 	Player player;
 	ArrayList<Enemy> enemies;
