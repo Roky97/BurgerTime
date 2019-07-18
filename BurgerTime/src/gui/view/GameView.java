@@ -159,12 +159,41 @@ public class GameView extends ViewManager implements IView {
 	public void checkCollision() {
 		for(Enemy e: enemies) {
 			if(e.getPosX()==player.getPosX() && e.getPosY()==player.getPosY()) {
-				endGame();
-				return;
+//				endGame();
+//				return;
+				manager.removeLife();
+				if(manager.getLifes() <= 0)
+					endGame();
+				resetPositions();
+				removeImageLife();
 			}
 		}
 	}
 	
+	private void removeImageLife() {
+		pane.getChildren().remove(lifesImage.get(lifesImage.size()-1));
+		lifesImage.remove(lifesImage.size()-1);
+		
+	}
+
+
+	public void resetPositions() {
+		player.resetPosition();
+		chefImage.setX((player.getPosY() * imageSizeX)-(imageSizeX/2));
+		chefImage.setY(((player.getPosX() * imageSizeY) + 65) );
+		destination=new PieceOfComponent(player.getPosX(),player.getPosY(),map); //resetto la sua destinazione
+		
+		
+		enemiesImage.forEach((image, e) -> {
+			e.resetPosition();
+			image.setX((e.getPosY()*imageSizeX) - (imageSizeX/2));
+			image.setY((e.getPosX()*imageSizeY)+65);
+			
+		});
+		
+	}
+
+
 	public void endGame() {
 		moveTimer.stop();
 		endGameSubScene.setLabel("GAME OVER");
