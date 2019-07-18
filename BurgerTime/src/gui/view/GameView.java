@@ -1002,8 +1002,8 @@ public class GameView extends ViewManager implements IView {
 		buttonsBox.setSpacing(20);
 		buttonsBox.setAlignment(Pos.CENTER_RIGHT);
 		buttonsBox.getChildren().addAll(endGameSubScene.getButtons());
-		buttonsBox.setLayoutX(130);
-		buttonsBox.setLayoutY(100);
+		buttonsBox.setLayoutX(200);
+		buttonsBox.setLayoutY(130);
 
 		endGameSubScene.getPane().getChildren().add(endGameSubScene.getLabel());
 		endGameSubScene.getPane().getChildren().add(buttonsBox);
