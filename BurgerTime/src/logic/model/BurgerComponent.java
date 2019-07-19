@@ -7,6 +7,15 @@ public class BurgerComponent {
 	ArrayList<PieceOfComponent> pieces;
 	boolean allPiecesPressed;
 	boolean completed;
+	boolean falling;
+	public boolean isFalling() {
+		return falling;
+	}
+
+	public void setFalling(boolean falling) {
+		this.falling = falling;
+	}
+
 	TypeComponent type;
 	Map map;
 	
@@ -36,6 +45,7 @@ public class BurgerComponent {
 			}
 		}
 		allPiecesPressed=true;
+//		falling  = true;
 	}
 	
 	public ArrayList<PieceOfComponent> getPieces(){

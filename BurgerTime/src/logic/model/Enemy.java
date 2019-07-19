@@ -14,12 +14,14 @@ public class Enemy {
 	private int initalPosY;
 	private Map map;
 	TypeEnemy type;
+	boolean alive;
 	
 	public Enemy() {
-		
+		alive = true;
 	}
 	public Enemy(Map m) {
 		map=m;
+		alive = true;
 	}
 	
 	public Enemy(int x, int y,Map m) {
@@ -28,8 +30,50 @@ public class Enemy {
 		posX = x;
 		posY = y;
 		map= m;
+		alive = true;
 	}
 	
+	public boolean isAlive() {
+		return alive;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (alive ? 1231 : 1237);
+		result = prime * result + initalPosX;
+		result = prime * result + initalPosY;
+		result = prime * result + posX;
+		result = prime * result + posY;
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Enemy other = (Enemy) obj;
+		if (alive != other.alive)
+			return false;
+		if (initalPosX != other.initalPosX)
+			return false;
+		if (initalPosY != other.initalPosY)
+			return false;
+		if (posX != other.posX)
+			return false;
+		if (posY != other.posY)
+			return false;
+		if (type != other.type)
+			return false;
+		return true;
+	}
+	public void setAlive(boolean alive) {
+		this.alive = alive;
+	}
 	public int getInitalPosX() {
 		return initalPosX;
 	}
