@@ -134,6 +134,7 @@ public class GameView extends ViewManager implements IView {
             		
             		checkEnemiesOnPlayerPath();
             		movePlayer();
+//            		checkEnemyHitted();
             		checkCollision();
             		findEnemyPath();
             		moveEnemies();
@@ -158,7 +159,7 @@ public class GameView extends ViewManager implements IView {
 	
 	public void checkCollision() {
 		for(Enemy e: enemies) {
-			if(e.getPosX()==player.getPosX() && e.getPosY()==player.getPosY()) {
+			if(e.isAlive() && e.getPosX()==player.getPosX() && e.getPosY()==player.getPosY()) {
 //				endGame();
 //				return;
 				manager.removeLife();
@@ -225,7 +226,7 @@ public class GameView extends ViewManager implements IView {
 			for(int i=0;i<path.size();i++) {
 				
 				for(Enemy e:enemies) {
-					if(path.get(i).getRow()==e.getPosX() && path.get(i).getColumn()==e.getPosY() && i<5) {	
+					if(e.isAlive() && path.get(i).getRow()==e.getPosX() && path.get(i).getColumn()==e.getPosY() && i<5) {	
 						findAlternativeDestination(player.getPosX(), player.getPosY());
 						findAlternativePath(e);
 						return;
@@ -264,34 +265,36 @@ public class GameView extends ViewManager implements IView {
 //			}
 			
 			for(Enemy e:enemies) {
-				try {
-					if(Math.abs(e.getPosX()-path.get(0).getRow())<3 && e.getPosY()==path.get(0).getColumn() && path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY()) {
-						path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
-						movePlayer();
-						findAlternativeDestination(player.getPosX(), player.getPosY());
-						findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+				if(e.isAlive()) {
+					try {
+						if(Math.abs(e.getPosX()-path.get(0).getRow())<3 && e.getPosY()==path.get(0).getColumn() && path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY()) {
+							path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
+							movePlayer();
+							findAlternativeDestination(player.getPosX(), player.getPosY());
+							findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+						}
+						else if(Math.abs(e.getPosY()-path.get(0).getColumn())<3 && e.getPosX()==path.get(0).getRow() && path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY())
+						{
+							path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
+							movePlayer();
+							findAlternativeDestination(player.getPosX(), player.getPosY());
+							findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+						}
+						else if(Math.abs(e.getPosX()-path.get(0).getRow())<3 && e.getPosY()==path.get(0).getColumn())
+						{
+							findAlternativeDestination(player.getPosX(), player.getPosY());
+							findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
+						}
+						else if(Math.abs(e.getPosY()-path.get(0).getColumn())<3 && e.getPosX()==path.get(0).getRow()) {
+							findAlternativeDestination(player.getPosX(), player.getPosY());
+							findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
+						}
+					} catch (Exception e2) {
+						System.err.println("Sto sforando qualcosa. Ricalcolo della destinazione.");
+						destination=new PieceOfComponent(player.getPosX(),player.getPosY(),map);
+						break;
+						
 					}
-					else if(Math.abs(e.getPosY()-path.get(0).getColumn())<3 && e.getPosX()==path.get(0).getRow() && path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY())
-					{
-						path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
-						movePlayer();
-						findAlternativeDestination(player.getPosX(), player.getPosY());
-						findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
-					}
-					else if(Math.abs(e.getPosX()-path.get(0).getRow())<3 && e.getPosY()==path.get(0).getColumn())
-					{
-						findAlternativeDestination(player.getPosX(), player.getPosY());
-						findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
-					}
-					else if(Math.abs(e.getPosY()-path.get(0).getColumn())<3 && e.getPosX()==path.get(0).getRow()) {
-						findAlternativeDestination(player.getPosX(), player.getPosY());
-						findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
-					}
-				} catch (Exception e2) {
-					System.err.println("Sto sforando qualcosa. Ricalcolo della destinazione.");
-					destination=new PieceOfComponent(player.getPosX(),player.getPosY(),map);
-					break;
-					
 				}
 					
 			}
@@ -496,7 +499,7 @@ public class GameView extends ViewManager implements IView {
 	
 	private void findEnemyPath() {
 		for(EnemySupport es: enemySupports) {
-			if(es.getPath().size()==0) {
+			if(es.getEnemy().isAlive() && es.getPath().size()==0) {
 				
 				int rand=(int) (Math.random() * 10);
 				
@@ -579,7 +582,7 @@ public class GameView extends ViewManager implements IView {
 	private void moveEnemies() {
 		
 		for(EnemySupport es: enemySupports) {
-			if(es.getPath().size()>0) {
+			if(es.getEnemy().isAlive() && es.getPath().size()>0) {
 				
 				Path nextPos=es.getPath().get(0);
 				es.getPath().remove(0);
@@ -660,7 +663,7 @@ public class GameView extends ViewManager implements IView {
 						
 						if(bc.AllPiecePressed()) {  //SE VI È UN BURGER COMPONENT TOTALMENTE PRESSATO FISSIAMO LE POSIZIONI DEI SUOI PEZZI PARI ALLA POSIZIONE DEL PAVIMENTO SOTTOSTANTE
 													//E SALVIAMO LE IMMAGINI RELATIVE AI SUOI PEZZI NELL'ARRAY componentImages
-							
+							bc.setFalling(true);
 							for(PieceOfComponent p: bc.getPieces()) {
 								for(Entry<ImageView, PieceOfComponent> entry : pieces.entrySet()) {
 									
@@ -695,10 +698,36 @@ public class GameView extends ViewManager implements IView {
 									componentImages.get(i).setY(componentImages.get(i).getY()+0.5);
 								}
 								
+							
+							
+							}
+							
 							/////////////////////////
 							//GESTISCI MORTEEEEEEEE//
 							/////////////////////////
+							for(PieceOfComponent p : bc.getPieces()) {
+								for(Enemy e : enemies) {
+									if(e.isAlive() && p.getPosX()-1==e.getPosX() && p.getPosY()==e.getPosY())
+								     {
+										 
+										 enemiesImage.forEach((image, en) -> {
+											 
+											 if(en.equals(e)) {
+												
+												 	System.out.println("COLPITO NEMICO");
+											 		en.setAlive(false);
+											 		pane.getChildren().remove(image);
+											 }
+											});
+										 
+								     }
+								}
 							}
+							bc.setFalling(false);
+								
+		
+							
+							
 						}
 					}
 	}	
