@@ -18,6 +18,7 @@ public class Position {
 	private PieceOfComponent dest; //DESTINAZIONE PIÙ VICINA DA RAGGIUNGERE A PARTIRE DALLA SCALA X,Y CALCOLATA IN BASE ALLE DISTANZE SOPRA CITATE
 	private int totalDistance;  //DISTANZA TOTALE TRA PLAYER E DEST
 	private ArrayList<BurgerComponent> components;
+	private boolean towardUpFloor;
 	
 	public Position() {
 		
@@ -65,8 +66,7 @@ public class Position {
 		for(int i=posX-1;i>=0;i--) {
 			
 			if( map.getMatrixValue(i, posY+1)=='0'  || map.getMatrixValue(i, posY-1)=='0'){
-				upFloor=i;
-				
+				upFloor=i;		
 				break;
 			}
 		}
@@ -77,7 +77,6 @@ public class Position {
 		for(int i=posX+1;i<21;i++) {
 			if(map.getMatrixValue(i, posY+1)=='0' || map.getMatrixValue(i, posY-1)=='0') {
 				downFloor=i;
-				
 				break;
 			}
 		}	
@@ -107,10 +106,10 @@ public class Position {
 	public int getTotalDistance() {
 		return totalDistance;
 	}
-	public int getDistanceUpFloorUpPiece(int d) {
+	public int getDistanceUpFloorUpPiece() {
 		return distanceUpFloorUpPiece;
 	}
-	public int getDistanceDownFloorDownPiece(int d) {
+	public int getDistanceDownFloorDownPiece() {
 		return distanceDownFloorDownPiece;
 	}
 	public void setDistanceUpFloorUpPiece(int d) {
@@ -121,156 +120,93 @@ public class Position {
 		distanceDownFloorDownPiece=d;
 	}
 	
+	public boolean getTowardUpFloor() {
+		return towardUpFloor;
+	}
+	
 	public void findNearestPiece() {
 		
-		if(distanceUpFloorUpPiece!=0 && distanceDownFloorDownPiece==0) {
-			dest=upPiece;
-			totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
-		}
-		else if(distanceDownFloorDownPiece!=0 && distanceUpFloorUpPiece==0) {
-			dest=downPiece;
-			totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
-		}
-		else if(distanceUpFloorUpPiece==0 && distanceDownFloorDownPiece==0) {
+		if(upFloor!=50 && downFloor==50) {
 			
-			if(upFloor==50) {
-				dest.setPosX(downFloor);
-				dest.setPosY(posY);
-				totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);		
+			if(distanceUpFloorUpPiece!=0) {
+				dest=upPiece;
+				towardUpFloor=true;
+				totalDistance=distanceFromPlayer+(posX-upFloor)+distanceUpFloorUpPiece;
 			}
-			else if(posX-upFloor < downFloor-posX) {
+			else {
 				dest.setPosX(upFloor);
 				dest.setPosY(posY);
-				totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
+				towardUpFloor=true;
+				totalDistance=distanceFromPlayer+(posX-upFloor);
 			}
-			else if(posX-upFloor > downFloor-posX) {
+		}
+		else if(upFloor==50 && downFloor!=50){
+			if(distanceDownFloorDownPiece!=0) {
+				dest=downPiece;
+				towardUpFloor=false;
+				totalDistance=distanceFromPlayer+(downFloor-posX)+distanceDownFloorDownPiece;
+			}
+			else {
 				dest.setPosX(downFloor);
 				dest.setPosY(posY);
-				totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
-			}
-			else if(posX-upFloor == downFloor-posX) {
-//				 int rand=(int) (Math.random() * 100);
-//				 
-//				 if(rand%2==0) {
-						boolean somethingUpstairs=false;
-						for(BurgerComponent b:components) {
-							for(PieceOfComponent p: b.getPieces()) {
-								if(p.getPosX()<=upFloor) {
-									somethingUpstairs=true;
-								}
-							}
-						}
-						if(somethingUpstairs) {
-							dest.setPosX(upFloor);
-							dest.setPosY(posY);
-							totalDistance=distanceFromPlayer+(posX-upFloor);
-						}else {
-							dest.setPosX(downFloor);
-							dest.setPosY(posY);
-							totalDistance=distanceFromPlayer+(downFloor-posX);
-						}
-						
-//				 }
-//				 else {
-//						dest.setPosX(downFloor);
-//						dest.setPosY(posY);
-//						totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
-//				 }
-			}
+				towardUpFloor=false;
+				totalDistance=distanceFromPlayer+(downFloor-posX);
+			}	
 		}
 		else {
-			if(upPiece.getPosY()> posY && downPiece.getPosY()>posY) {
+			if(distanceUpFloorUpPiece!=0 && distanceDownFloorDownPiece==0) {
+				dest=upPiece;
+				towardUpFloor=true;
+				totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
+			}
+			else if(distanceDownFloorDownPiece!=0 && distanceUpFloorUpPiece==0) {
+				dest=downPiece;
+				towardUpFloor=false;
+				totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
+			}
+			else if(distanceUpFloorUpPiece==0 && distanceDownFloorDownPiece==0) {
+			
+				boolean somethingUpstairs=false;
+				for(BurgerComponent b:components) {
+					for(PieceOfComponent p: b.getPieces()) {
+						if(p.getPosX()<posX) {
+							somethingUpstairs=true;
+						}
+					}
+				}
 				
-				if((posX-upFloor)+(upPiece.getPosY()-posY) < (downFloor-posX)+(downPiece.getPosY()-posY)) {
-					dest=upPiece;
-					totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
-				}
-				else if((posX-upFloor)+(upPiece.getPosY()-posY) > (downFloor-posX)+(downPiece.getPosY()-posY)) {
-					dest=downPiece;
-					totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
-				}
-				else {
-//					 int rand=(int) (Math.random() * 100);
-//					 
-//					 if(rand%2==0) {
-							dest=upPiece;
-							totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
-//					 }
-//					 else {
-//							dest=downPiece;
-//							totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
-//					 }
+				if(somethingUpstairs) {
+					dest.setPosX(upFloor);
+					dest.setPosY(posY);
+					towardUpFloor=true;
+					totalDistance=distanceFromPlayer+(posX-upFloor);
+				}else {
+					dest.setPosX(downFloor);
+					dest.setPosY(posY);
+					towardUpFloor=false;
+					totalDistance=distanceFromPlayer+(downFloor-posX);
 				}
 			}
-			else if(upPiece.getPosY()> posY && downPiece.getPosY()<posY) {
+			else {
 				
-				if((posX-upFloor)+(upPiece.getPosY()-posY) < (downFloor-posX)+(posY-downPiece.getPosY())) {
+				if(posX-upFloor+distanceUpFloorUpPiece == downFloor-posX + distanceDownFloorDownPiece) {
 					dest=upPiece;
-					totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
+					towardUpFloor=true;
+					totalDistance=distanceUpFloorUpPiece+(posX-upFloor)+distanceFromPlayer;
 				}
-				else if((posX-upFloor)+(upPiece.getPosY()-posY) > (downFloor-posX)+(posY-downPiece.getPosY())) {
-					dest=downPiece;
-					totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
-				}
-				else {
-//					 int rand=(int) (Math.random() * 100);
-//					 
-//					 if(rand%2==0) {
-							dest=upPiece;
-							totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
-//					 }
-//					 else {
-//							dest=downPiece;
-//							totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
-//					 }
-				}
-			}
-			else if(upPiece.getPosY()<posY && downPiece.getPosY()<posY) {
-				if((posX-upFloor)+(posY-upPiece.getPosY()) < (downFloor-posX)+(posY-downPiece.getPosY())) {
-					dest=upPiece;
-					totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
-				}
-				else if((posX-upFloor)+(posY-upPiece.getPosY()) > (downFloor-posX)+(posY-downPiece.getPosY())) {
-					dest=downPiece;
-					totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
-				}
-				else {
-//					 int rand=(int) (Math.random() * 100);
-//					 
-//					 if(rand%2==0) {
-							dest=upPiece;
-							totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
-//					 }
-//					 else {
-//							dest=downPiece;
-//							totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
-//					 }
-				}
-			}
-			else if(upPiece.getPosY()<posY && downPiece.getPosY()>posY) {
-				
-				if((posX-upFloor)+(posY-upPiece.getPosY()) < (downFloor-posX)+(downPiece.getPosY()-posY)) {
-					dest=upPiece;
-					totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
-				}
-				else if((posX-upFloor)+(posY-upPiece.getPosY()) > (downFloor-posX)+(downPiece.getPosY()-posY)) {
-					dest=downPiece;
-					totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
-				}
-				else {
-//					 int rand=(int) (Math.random() * 100);
-//					 
-//					 if(rand%2==0) {
-							dest=upPiece;
-							totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
-//					 }
-//					 else {
-//							dest=downPiece;
-//							totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
-//					 }
+
+				else if((posX-upFloor)+distanceUpFloorUpPiece < (downFloor-posX)+distanceDownFloorDownPiece) {
+						dest=upPiece;
+						towardUpFloor=true;
+						totalDistance=distanceFromPlayer+distanceUpFloorUpPiece+(posX-upFloor);
+					}
+				else if((posX-upFloor)+distanceUpFloorUpPiece > (downFloor-posX)+distanceDownFloorDownPiece) {
+						dest=downPiece;
+						towardUpFloor=false;
+						totalDistance=distanceFromPlayer+distanceDownFloorDownPiece+(downFloor-posX);
 				}
 			}
 		}
-		
 	}
+					
 }

@@ -447,7 +447,7 @@ public class GameView extends ViewManager implements IView {
 		if(distance!=0) { //DOPO AVER DETERMINATO IL PEZZO PIÙ VICINO PER CIASCUNA SCALA VEDIAMO QUAL È IL PEZZO PIÙ VICINO PER TUTTE LE SCALE. DOPO AVERLO INDIVIDUATO VEDIAMO SE È PIÙ VICINO DEL PEZZO SULLA NOSTRA STESSA RIGA.
 			
 			for(Position p: availableStairs) {
-				if(p.getDestination().getPosX()!=50 && p.getTotalDistance()<distance && p.getDestination().getPosX()!= destination.getPosX() && p.getDestination().getPosY()!=destination.getPosY()) {
+				if((p.getDistanceDownFloorDownPiece()!=0 || p.getDistanceUpFloorUpPiece()!=0) && p.getTotalDistance()<distance) {
 					destination.setPosX(p.getDestination().getPosX());
 					destination.setPosY(p.getDestination().getPosY());
 					distance=p.getTotalDistance();
@@ -455,9 +455,9 @@ public class GameView extends ViewManager implements IView {
 			}
 		}
 		else {
-			int max=100;
+			int max=200;
 			for(Position p: availableStairs) {
-				if(p.getDestination().getPosX()!=50 && p.getTotalDistance()<max) {
+				if((p.getDistanceDownFloorDownPiece()!=0 || p.getDistanceUpFloorUpPiece()!=0) && p.getTotalDistance()<max) {
 					destination.setPosX(p.getDestination().getPosX());
 					destination.setPosY(p.getDestination().getPosY());
 					System.out.println("Per la scala "+ p.getPosX() + " " + p.getPosY() +" la destinazione diventa " + destination.getPosX() +" "+ destination.getPosY());
@@ -465,9 +465,9 @@ public class GameView extends ViewManager implements IView {
 				}
 			}
 			
-			if(max==100) {
+			if(max==200) {
 				for(Position p: availableStairs) {
-					if(p.getTotalDistance()<max  && p.getDestination().getPosX()!= destination.getPosX() && p.getDestination().getPosY()!=destination.getPosY()) {
+					if(p.getTotalDistance()<max) {
 						destination.setPosX(p.getDestination().getPosX());
 						destination.setPosY(p.getDestination().getPosY());
 						System.out.println("Per la scala "+ p.getPosX() + " " + p.getPosY() +" la destinazione diventa " + destination.getPosX() +" "+ destination.getPosY());
@@ -851,7 +851,7 @@ public class GameView extends ViewManager implements IView {
 		
 		if(distance!=0) { //DOPO AVER DETERMINATO IL PEZZO PIÙ VICINO PER CIASCUNA SCALA VEDIAMO QUAL È IL PEZZO PIÙ VICINO PER TUTTE LE SCALE. DOPO AVERLO INDIVIDUATO VEDIAMO SE È PIÙ VICINO DEL PEZZO SULLA NOSTRA STESSA RIGA.
 			for(Position p: availableStairs) {
-				if(p.getDestination().getPosX()!=50 && p.getTotalDistance()<distance) {
+				if((p.getDistanceDownFloorDownPiece()!=0 || p.getDistanceUpFloorUpPiece()!=0) && p.getTotalDistance()<distance) {
 					destination.setPosX(p.getDestination().getPosX());
 					destination.setPosY(p.getDestination().getPosY());
 					distance=p.getTotalDistance();
@@ -859,16 +859,16 @@ public class GameView extends ViewManager implements IView {
 			}
 		}
 		else {
-			int max=100;
+			int max=200;
 			for(Position p: availableStairs) {
-				if(p.getDestination().getPosX()!=50 && p.getTotalDistance()<max) {
+				if((p.getDistanceDownFloorDownPiece()!=0 || p.getDistanceUpFloorUpPiece()!=0) && p.getTotalDistance()<max) {
 					destination.setPosX(p.getDestination().getPosX());
 					destination.setPosY(p.getDestination().getPosY());
 					max=p.getTotalDistance();
 				}
 			}
 			
-			if(max==100) {
+			if(max==200) {
 				for(Position p: availableStairs) {
 					if(p.getTotalDistance()<max) {
 						destination.setPosX(p.getDestination().getPosX());
