@@ -33,7 +33,7 @@ public class GameManager {
 	private void loadLevels() {
 		for(int i = 0; i < totLevels; i++)
 		{
-			levels.add(new Map(i+1));
+			levels.add(new Map(i+2));
 		}
 	}
 

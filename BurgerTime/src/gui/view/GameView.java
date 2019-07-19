@@ -264,28 +264,36 @@ public class GameView extends ViewManager implements IView {
 //			}
 			
 			for(Enemy e:enemies) {
-				if(Math.abs(e.getPosX()-path.get(0).getRow())<3 && e.getPosY()==path.get(0).getColumn() && path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY()) {
-					path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
-					movePlayer();
-					findAlternativeDestination(player.getPosX(), player.getPosY());
-					findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+				try {
+					if(Math.abs(e.getPosX()-path.get(0).getRow())<3 && e.getPosY()==path.get(0).getColumn() && path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY()) {
+						path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
+						movePlayer();
+						findAlternativeDestination(player.getPosX(), player.getPosY());
+						findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+					}
+					else if(Math.abs(e.getPosY()-path.get(0).getColumn())<3 && e.getPosX()==path.get(0).getRow() && path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY())
+					{
+						path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
+						movePlayer();
+						findAlternativeDestination(player.getPosX(), player.getPosY());
+						findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+					}
+					else if(Math.abs(e.getPosX()-path.get(0).getRow())<3 && e.getPosY()==path.get(0).getColumn())
+					{
+						findAlternativeDestination(player.getPosX(), player.getPosY());
+						findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
+					}
+					else if(Math.abs(e.getPosY()-path.get(0).getColumn())<3 && e.getPosX()==path.get(0).getRow()) {
+						findAlternativeDestination(player.getPosX(), player.getPosY());
+						findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
+					}
+				} catch (Exception e2) {
+					System.err.println("Sto sforando qualcosa. Ricalcolo della destinazione.");
+					destination=new PieceOfComponent(player.getPosX(),player.getPosY(),map);
+					break;
+					
 				}
-				else if(Math.abs(e.getPosY()-path.get(0).getColumn())<3 && e.getPosX()==path.get(0).getRow() && path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY())
-				{
-					path.add(0, new Path(precPosition.getRow(),precPosition.getColumn()));
-					movePlayer();
-					findAlternativeDestination(player.getPosX(), player.getPosY());
-					findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
-				}
-				else if(Math.abs(e.getPosX()-path.get(0).getRow())<3 && e.getPosY()==path.get(0).getColumn())
-				{
-					findAlternativeDestination(player.getPosX(), player.getPosY());
-					findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
-				}
-				else if(Math.abs(e.getPosY()-path.get(0).getColumn())<3 && e.getPosX()==path.get(0).getRow()) {
-					findAlternativeDestination(player.getPosX(), player.getPosY());
-					findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
-				}	
+					
 			}
 			
 		}
@@ -523,32 +531,42 @@ public class GameView extends ViewManager implements IView {
 
 			if(nextPos.getRow()>player.getPosX() && nextPos.getColumn()==player.getPosY()) {
 				if(player.moveDown()) {
-					while(((chefImage.getY()-65)/imageSizeY)!=player.getPosX()) {	
-						chefImage.setY(chefImage.getY() + 1);
-					}	
+//					while(((chefImage.getY()-65)/imageSizeY)!=player.getPosX()) {	
+//						chefImage.setY(chefImage.getY() + 1);
+//					}	
+					
+					chefImage.setX((player.getPosY() * imageSizeX)-(imageSizeX/2));
+					chefImage.setY(((player.getPosX() * imageSizeY) + 65) );
 				}
 			}
 			else if(nextPos.getRow()<player.getPosX() && nextPos.getColumn()==player.getPosY()) {
 				if(player.moveUp()) {
-					while(((chefImage.getY()-65)/imageSizeY)!=player.getPosX()) {
-						chefImage.setY(chefImage.getY() - 1);
-					}	
+//					while(((chefImage.getY()-65)/imageSizeY)!=player.getPosX()) {
+//						chefImage.setY(chefImage.getY() - 1);
+//					}	
+					
+					chefImage.setX((player.getPosY() * imageSizeX)-(imageSizeX/2));
+					chefImage.setY(((player.getPosX() * imageSizeY) + 65) );
 				}
 			}
 			else if(nextPos.getRow()==player.getPosX() && nextPos.getColumn()>player.getPosY()) {
 				
 				if(player.moveRight()) {
-					while((chefImage.getX()/imageSizeX)!=player.getPosY()) {
-						chefImage.setX(chefImage.getX() + 1);
-					}	
+//					while((chefImage.getX()/imageSizeX)!=player.getPosY()) {
+//						chefImage.setX(chefImage.getX() + 1);
+//					}
+					chefImage.setX((player.getPosY() * imageSizeX)-(imageSizeX/2));
+					chefImage.setY(((player.getPosX() * imageSizeY) + 65) );
 				}
 			}
 			else if(nextPos.getRow()==player.getPosX() && nextPos.getColumn()<player.getPosY()) {
 	
 				if(player.moveLeft()) {	
-					while((chefImage.getX()/imageSizeX)!=player.getPosY()) {
-						chefImage.setX(chefImage.getX() - 1);
-					}		
+//					while((chefImage.getX()/imageSizeX)!=player.getPosY()) {
+//						chefImage.setX(chefImage.getX() - 1);
+//					}
+					chefImage.setX((player.getPosY() * imageSizeX)-(imageSizeX/2));
+					chefImage.setY(((player.getPosX() * imageSizeY) + 65) );
 				}
 			}
 			
@@ -577,32 +595,43 @@ public class GameView extends ViewManager implements IView {
 				
 				if(nextPos.getRow()>es.getEnemy().getPosX() && nextPos.getColumn()==es.getEnemy().getPosY()) {
 					if(es.getEnemy().moveDown()) {
-						while(((temp.getY()-65)/imageSizeY)!=es.getEnemy().getPosX()) {	
-							temp.setY(temp.getY() + 1);
-						}	
+//						while(((temp.getY()-65)/imageSizeY)!=es.getEnemy().getPosX()) {	
+//							temp.setY(temp.getY() + 1);
+//						}
+						
+						temp.setX((es.getEnemy().getPosY() * imageSizeX)-(imageSizeX/2));
+						temp.setY(((es.getEnemy().getPosX() * imageSizeY) + 65) );
+						
+						
 					}
 				}
 				else if(nextPos.getRow()<es.getEnemy().getPosX() && nextPos.getColumn()==es.getEnemy().getPosY()) {
 					if(es.getEnemy().moveUp()) {
-						while(((temp.getY()-65)/imageSizeY)!=es.getEnemy().getPosX()) {
-							temp.setY(temp.getY() - 1);
-						}	
+//						while(((temp.getY()-65)/imageSizeY)!=es.getEnemy().getPosX()) {
+//							temp.setY(temp.getY() - 1);
+//						}	
+						temp.setX((es.getEnemy().getPosY() * imageSizeX)-(imageSizeX/2));
+						temp.setY(((es.getEnemy().getPosX() * imageSizeY) + 65) );
 					}
 				}
 				else if(nextPos.getRow()==es.getEnemy().getPosX() && nextPos.getColumn()>es.getEnemy().getPosY()) {
 					
 					if(es.getEnemy().moveRight()) {
-						while((temp.getX()/imageSizeX)!=es.getEnemy().getPosY()) {
-							temp.setX(temp.getX() + 1);
-						}	
+//						while((temp.getX()/imageSizeX)!=es.getEnemy().getPosY()) {
+//							temp.setX(temp.getX() + 1);
+//						}	
+						temp.setX((es.getEnemy().getPosY() * imageSizeX)-(imageSizeX/2));
+						temp.setY(((es.getEnemy().getPosX() * imageSizeY) + 65) );
 					}
 				}
 				else if(nextPos.getRow()==es.getEnemy().getPosX() && nextPos.getColumn()<es.getEnemy().getPosY()) {
 		
 					if(es.getEnemy().moveLeft()) {	
-						while((temp.getX()/imageSizeX)!=es.getEnemy().getPosY()) {
-							temp.setX(temp.getX() - 1);
-						}		
+//						while((temp.getX()/imageSizeX)!=es.getEnemy().getPosY()) {
+//							temp.setX(temp.getX() - 1);
+//						}
+						temp.setX((es.getEnemy().getPosY() * imageSizeX)-(imageSizeX/2));
+						temp.setY(((es.getEnemy().getPosX() * imageSizeY) + 65) );
 					}
 				}	
 			}
