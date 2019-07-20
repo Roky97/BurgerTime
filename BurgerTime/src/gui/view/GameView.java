@@ -59,6 +59,7 @@ public class GameView extends ViewManager implements IView {
 	private Map map;
 	private ArrayList<BurgerComponent> burgerComponents;
 	private ArrayList<Position> stairsPositions;
+	private boolean waitBeforeToCompleteComponent;
 
 	
 	private AnimationTimer moveTimer;
@@ -89,6 +90,7 @@ public class GameView extends ViewManager implements IView {
 		path=new ArrayList<Path>();
 		stairsPositions=map.getStairsPositions();
 		precPosition=new Cell();
+		waitBeforeToCompleteComponent=false;
 		
 		
 
@@ -133,6 +135,7 @@ public class GameView extends ViewManager implements IView {
             		
             		
             		checkEnemiesOnPlayerPath();
+            		killEnemies();
             		movePlayer();
 //            		checkEnemyHitted();
             		checkCollision();
@@ -229,6 +232,7 @@ public class GameView extends ViewManager implements IView {
 					if(e.isAlive() && path.get(i).getRow()==e.getPosX() && path.get(i).getColumn()==e.getPosY() && i<5) {	
 						findAlternativeDestination(player.getPosX(), player.getPosY());
 						findAlternativePath(e);
+						waitBeforeToCompleteComponent=false;
 						return;
 					}
 				}
@@ -272,6 +276,7 @@ public class GameView extends ViewManager implements IView {
 							movePlayer();
 							findAlternativeDestination(player.getPosX(), player.getPosY());
 							findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+							waitBeforeToCompleteComponent=false;
 						}
 						else if(Math.abs(e.getPosY()-path.get(0).getColumn())<3 && e.getPosX()==path.get(0).getRow() && path.get(0).getRow()==destination.getPosX() && path.get(0).getColumn()==destination.getPosY())
 						{
@@ -279,21 +284,23 @@ public class GameView extends ViewManager implements IView {
 							movePlayer();
 							findAlternativeDestination(player.getPosX(), player.getPosY());
 							findAlternativePath(new Enemy(precPosition.getRow(),precPosition.getColumn(),map));
+							waitBeforeToCompleteComponent=false;
 						}
 						else if(Math.abs(e.getPosX()-path.get(0).getRow())<3 && e.getPosY()==path.get(0).getColumn())
 						{
 							findAlternativeDestination(player.getPosX(), player.getPosY());
 							findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
+							waitBeforeToCompleteComponent=false;
 						}
 						else if(Math.abs(e.getPosY()-path.get(0).getColumn())<3 && e.getPosX()==path.get(0).getRow()) {
 							findAlternativeDestination(player.getPosX(), player.getPosY());
 							findAlternativePath(new Enemy(path.get(0).getRow(),path.get(0).getColumn(),map));
+							waitBeforeToCompleteComponent=false;
 						}
 					} catch (Exception e2) {
 						System.err.println("Sto sforando qualcosa. Ricalcolo della destinazione.");
 						destination=new PieceOfComponent(player.getPosX(),player.getPosY(),map);
-						break;
-						
+						break;	
 					}
 				}
 					
@@ -457,7 +464,7 @@ public class GameView extends ViewManager implements IView {
 		else {
 			int max=200;
 			for(Position p: availableStairs) {
-				if((p.getDistanceDownFloorDownPiece()!=0 || p.getDistanceUpFloorUpPiece()!=0) && p.getTotalDistance()<max) {
+				if((p.getDistanceDownFloorDownPiece()!=0 || p.getDistanceUpFloorUpPiece()!=0) && p.getTotalDistance()<max && (p.getDestination().getPosX()!=destination.getPosX() || p.getDestination().getPosY()!=destination.getPosY())) {
 					destination.setPosX(p.getDestination().getPosX());
 					destination.setPosY(p.getDestination().getPosY());
 					System.out.println("Per la scala "+ p.getPosX() + " " + p.getPosY() +" la destinazione diventa " + destination.getPosX() +" "+ destination.getPosY());
@@ -467,7 +474,7 @@ public class GameView extends ViewManager implements IView {
 			
 			if(max==200) {
 				for(Position p: availableStairs) {
-					if(p.getTotalDistance()<max) {
+					if(p.getTotalDistance()<max && (p.getDestination().getPosX()!=destination.getPosX() || p.getDestination().getPosY()!=destination.getPosY())) {
 						destination.setPosX(p.getDestination().getPosX());
 						destination.setPosY(p.getDestination().getPosY());
 						System.out.println("Per la scala "+ p.getPosX() + " " + p.getPosY() +" la destinazione diventa " + destination.getPosX() +" "+ destination.getPosY());
@@ -488,6 +495,10 @@ public class GameView extends ViewManager implements IView {
 			PathGenerator pathGenerator=new PathGenerator(map);
 			pathGenerator.setFacts(player, destination);
 			path=pathGenerator.findSolution();
+			if(path.size()==0) {
+				destination.setPosX(player.getPosX());
+				destination.setPosY(player.getPosY());
+			}
 		}
 	}
 	
@@ -495,6 +506,10 @@ public class GameView extends ViewManager implements IView {
 		AlternativePathGenerator alternativePathGen= new AlternativePathGenerator(map);
 		alternativePathGen.setFacts(player, destination, e);
 		path=alternativePathGen.findSolution();
+		if(path.size()==0) {
+			destination.setPosX(player.getPosX());
+			destination.setPosY(player.getPosY());
+		}
 	}
 	
 	private void findEnemyPath() {
@@ -526,7 +541,7 @@ public class GameView extends ViewManager implements IView {
 	
 	private void movePlayer() {
 			
-		if(path.size()>0) {
+		if(path.size()>0 && !waitBeforeToCompleteComponent) {
 			precPosition.setRow(player.getPosX());
 			precPosition.setColumn(player.getPosY());
 			Path nextPos=path.get(0);
@@ -879,6 +894,92 @@ public class GameView extends ViewManager implements IView {
 			}
 		}
 		
+	}
+	
+	
+	private void killEnemies() {
+		
+		if(path.size()>0) {
+			if(path.get(0).getRow() == destination.getPosX() && path.get(0).getColumn() == destination.getPosY()) {
+				
+					for(BurgerComponent b : burgerComponents) {
+						for(PieceOfComponent p : b.getPieces()) {
+							if(p.getPosX()-1==destination.getPosX() && p.getPosY()==destination.getPosY() && b.lastPieceBeforeFall(p)) {
+								
+								if(!waitBeforeToCompleteComponent) {
+									if(enemyWillPassUnderComponent(b)) {
+										waitBeforeToCompleteComponent=true;
+										return;
+									}
+								}
+								else {
+									if(enemyIsUnderComponent(b)) {
+										waitBeforeToCompleteComponent=false;
+										return;
+									}
+								}
+								
+							}
+						}
+					}
+				}
+		}
+	}
+	
+	
+	
+	private boolean enemyWillPassUnderComponent(BurgerComponent b) {
+		
+		int nextFloor=0;
+		for(int i=b.getPieces().get(0).getPosX()+1;i<map.getRowLen();i++) {
+			
+			if((map.getMatrixValue(i, b.getPieces().get(0).getPosY())!='1') && (map.getMatrixValue(i, b.getPieces().get(0).getPosY())!='0')) {
+				nextFloor=i;
+				break;
+			}
+		}
+		
+		for(PieceOfComponent p : b.getPieces())
+		{
+			
+			for(EnemySupport e : enemySupports) {
+				
+				if(e.getEnemy().isAlive()) {
+					for(int i=0;i<e.getPath().size();i++) {
+						
+						if(e.getPath().get(i).getRow()==nextFloor-1 && e.getPath().get(i).getColumn()==p.getPosY() && i<5) {
+							
+							return true;
+						}
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean enemyIsUnderComponent(BurgerComponent b) {
+		
+		int nextFloor=0;
+		for(int i=b.getPieces().get(0).getPosX()+1;i<map.getRowLen();i++) {
+			
+			if((map.getMatrixValue(i, b.getPieces().get(0).getPosY())!='1') && (map.getMatrixValue(i, b.getPieces().get(0).getPosY())!='0')) {
+				nextFloor=i;
+				break;
+			}
+		}
+		
+		
+		for(PieceOfComponent p: b.getPieces()) {
+			for(Enemy e: enemies) {
+				if(e.getPosX()==nextFloor-1 && e.getPosY()==p.getPosY() && e.isAlive()) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	

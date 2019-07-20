@@ -84,5 +84,16 @@ public class BurgerComponent {
 	public void setCompleted(boolean b) {
 		completed=b;
 	}
+	
+	public boolean lastPieceBeforeFall(PieceOfComponent p) {
+		
+		for(PieceOfComponent piece: pieces) {
+			if(piece.getPosY()!=p.getPosY() && !piece.getPressed()) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
 
 }
