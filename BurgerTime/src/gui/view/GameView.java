@@ -1,5 +1,6 @@
 package gui.view;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -29,6 +30,7 @@ import logic.model.Cell;
 import logic.model.Enemy;
 import logic.model.EnemySupport;
 import logic.model.Map;
+import logic.model.PathSupport;
 import logic.model.PieceOfComponent;
 import logic.model.Player;
 import logic.model.Position;
@@ -80,6 +82,7 @@ public class GameView extends ViewManager implements IView {
 	private PieceOfComponent destination;
 
 	GameView() {
+		
 		super(WIDTH,HEIGHT);
 //		mainStage.setResizable(false);
 		manager = new GameManager();
@@ -91,8 +94,6 @@ public class GameView extends ViewManager implements IView {
 		stairsPositions=map.getStairsPositions();
 		precPosition=new Cell();
 		waitBeforeToCompleteComponent=false;
-		
-		
 
 		destination=new PieceOfComponent(player.getPosX(),player.getPosY(),map);
 
@@ -106,8 +107,7 @@ public class GameView extends ViewManager implements IView {
 		loadElements();
 		setPlayer();
 		setEnemies();
-		drawLifes();
-		
+		drawLifes();	
 		createSubScenes();
 
 		
@@ -158,6 +158,83 @@ public class GameView extends ViewManager implements IView {
 		moveTimer.start();
 	}
 	
+	
+	
+	
+	
+	
+	////////////////////////
+	/// TEST NEW SOLUTION //
+	////////////////////////
+	
+	
+	private ArrayList<PieceOfComponent> findPieceForEachComponent() {
+		
+		ArrayList<PieceOfComponent> componentsPiece=new ArrayList<PieceOfComponent>();
+		
+		
+		for(BurgerComponent b : burgerComponents) {
+			for(PieceOfComponent p: b.getPieces()) {
+				if(!p.getPressed()) {
+					componentsPiece.add(p);
+					break;
+				}
+			}
+		}
+		
+		return componentsPiece;
+	}
+	
+
+	
+	private void findBestPath() {
+		
+		ArrayList<PieceOfComponent> componentsPiece=findPieceForEachComponent();
+		ArrayList<PathSupport> pathSupports=new ArrayList<PathSupport>();
+		
+		for(PieceOfComponent p: componentsPiece) {
+			PathGenerator pathGenerator=new PathGenerator(map);
+			pathGenerator.setFacts(player, p);		
+			PathSupport temp= new PathSupport(p,pathGenerator.findSolution(), enemies);
+			pathSupports.add(temp);
+		}
+		
+		for(PathSupport p : pathSupports) {
+			p.computeDangerousness();
+		}
+		
+		ArrayList<Path> temp= new ArrayList<Path>();
+		
+		int max=200;
+		for(PathSupport p: pathSupports) {
+			
+			if(p.getDangerousness()<max && p.getPath().size()>0) {
+				temp=p.getPath();
+				max=p.getDangerousness();
+			}
+		}
+		
+		path=temp;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/////////////////
+	// END TESTING //
+	/////////////////
 	
 	
 	public void checkCollision() {
