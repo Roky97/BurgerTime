@@ -46,5 +46,21 @@ public class PathSupport {
 	
 	public void computeDangerousness() {
 		
+		for(Path p : path) {
+			
+			for(Enemy e : enemies) {
+				if(e.isAlive()) {
+					if(e.getPosX()==p.getRow() && e.getPosY()==p.getColumn()) {
+						dangerousness+=2;
+					}
+					else if(Math.abs(e.getPosX()-p.getRow())<2 && e.getPosY()==p.getColumn()) {
+						dangerousness+=1;
+					}
+					else if(e.getPosX()==p.getRow() && Math.abs(e.getPosY()-p.getColumn())<2) {
+						dangerousness+=1;
+					}
+				}
+			}
+		}
 	}
 }
